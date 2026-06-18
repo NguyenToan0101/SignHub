@@ -20,6 +20,19 @@ interface ProductsAdminViewProps {
   onBulkStatusUpdate: (productIds: string[], status: "Active" | "Hidden") => void;
 }
 
+const STATUS_LABELS: Record<AdminProduct["status"], string> = {
+  Active: "Đang bán",
+  Hidden: "Đang ẩn",
+  "Out of Stock": "Hết hàng",
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  seating: "Khác",
+  lighting: "Biển hiệu đèn",
+  tables: "Biển số nhà",
+  decor: "Trang trí",
+};
+
 export function ProductsAdminView({
   products,
   onAddProduct,
@@ -143,10 +156,10 @@ export function ProductsAdminView({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-[#c4c7c7]/30 pb-6">
         <div>
           <span className="text-[10px] tracking-widest font-bold text-[#775a19] uppercase block mb-1">
-            BOUTIQUE PORTFOLIO
+            QUẢN LÝ DANH MỤC
           </span>
           <h1 className="font-display text-3xl font-bold text-[#1b1c1c] tracking-tight">
-            Masterpieces Inventory
+            Sản phẩm
           </h1>
         </div>
 
@@ -156,7 +169,7 @@ export function ProductsAdminView({
             className="flex items-center gap-2 pl-3.5 pr-4 py-2 border border-[#c4c7c7]/60 hover:border-[#1b1c1c] text-[#444748] hover:text-[#1b1c1c] rounded-xl text-xs font-semibold tracking-wider uppercase transition-colors"
           >
             <Download size={13} />
-            EXCEL LEDGER
+            Xuất Excel
           </button>
           
           <button
@@ -165,7 +178,7 @@ export function ProductsAdminView({
             id="curate-new-piece-btn"
           >
             <Plus size={14} />
-            CURATE NEW PIECE
+            Thêm sản phẩm
           </button>
         </div>
       </div>
@@ -178,7 +191,7 @@ export function ProductsAdminView({
           <Search size={14} className="text-[#444748]/60" />
           <input 
             type="text"
-            placeholder="Search piece name & materials..." 
+            placeholder="Tìm theo tên hoặc chất liệu..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="bg-transparent border-none text-xs focus:ring-0 focus:outline-none placeholder-[#444748]/40 w-full"
@@ -187,38 +200,38 @@ export function ProductsAdminView({
 
         {/* Category Filter */}
         <div className="flex items-center gap-2 bg-[#fbf9f9] border border-[#c4c7c7]/30 rounded-xl px-3.5 py-2">
-          <span className="text-[10px] font-bold text-[#444748] uppercase">Class:</span>
+          <span className="text-[10px] font-bold text-[#444748] uppercase">Danh mục:</span>
           <select 
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
             className="bg-transparent border-none text-xs text-[#1b1c1c] font-semibold focus:outline-none focus:ring-0 cursor-pointer w-full py-0"
           >
-            <option value="all">Paintings & Assets</option>
-            <option value="seating">Seating</option>
-            <option value="lighting">Lighting</option>
-            <option value="tables">Tables</option>
-            <option value="decor">Decor items</option>
+            <option value="all">Tất cả danh mục</option>
+            <option value="seating">Khác</option>
+            <option value="lighting">Biển hiệu đèn</option>
+            <option value="tables">Biển số nhà</option>
+            <option value="decor">Trang trí</option>
           </select>
         </div>
 
         {/* Stock Warning Levels */}
         <div className="flex items-center gap-2 bg-[#fbf9f9] border border-[#c4c7c7]/30 rounded-xl px-3.5 py-2">
-          <span className="text-[10px] font-bold text-[#444748] uppercase">Stock:</span>
+          <span className="text-[10px] font-bold text-[#444748] uppercase">Tồn kho:</span>
           <select 
             value={stockFilter}
             onChange={(e) => setStockFilter(e.target.value)}
             className="bg-transparent border-none text-xs text-[#1b1c1c] font-semibold focus:outline-none focus:ring-0 cursor-pointer w-full py-0"
           >
-            <option value="all">All stock volumes</option>
-            <option value="instock">Fully stocked (&gt; 5 units)</option>
-            <option value="low">Low stock (&le; 5 units)</option>
-            <option value="out">Out of stock (0 units)</option>
+            <option value="all">Tất cả tồn kho</option>
+            <option value="instock">Còn nhiều (&gt; 5)</option>
+            <option value="low">Sắp hết (&le; 5)</option>
+            <option value="out">Hết hàng (0)</option>
           </select>
         </div>
 
         {/* Selection count context info */}
         <div className="flex items-center justify-end font-mono text-[9px] text-[#444748]/60 px-2 font-bold uppercase">
-          {filteredProducts.length} Entries matching search
+          {filteredProducts.length} sản phẩm phù hợp
         </div>
       </div>
 
@@ -226,7 +239,7 @@ export function ProductsAdminView({
       {selectedIds.length > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#775a19]/10 border border-[#775a19]/30 rounded-2xl px-6 py-4 animate-in slide-in-from-top-3">
           <span className="text-xs font-semibold text-[#1b1c1c]">
-            Selected <span className="font-bold font-mono bg-[#775a19] text-white rounded-full px-2 py-0.5">{selectedIds.length}</span> pieces
+            Đã chọn <span className="font-bold font-mono bg-[#775a19] text-white rounded-full px-2 py-0.5">{selectedIds.length}</span> sản phẩm
           </span>
           <div className="flex flex-wrap gap-2">
             <button
@@ -236,7 +249,7 @@ export function ProductsAdminView({
               }}
               className="px-4 py-2 bg-white text-[#775a19] border border-[#775a19]/30 hover:bg-[#775a19] hover:text-white rounded-xl text-[10px] font-bold tracking-wider uppercase transition-all shadow-sm"
             >
-              Set Active
+              Hiển thị
             </button>
             <button
               onClick={() => {
@@ -245,7 +258,7 @@ export function ProductsAdminView({
               }}
               className="px-4 py-2 bg-white text-[#444748] border border-[#c4c7c7] hover:bg-[#efeded] rounded-xl text-[10px] font-bold tracking-wider uppercase transition-all shadow-sm"
             >
-              Hide items
+              Ẩn sản phẩm
             </button>
             <button
               onClick={() => {
@@ -254,7 +267,7 @@ export function ProductsAdminView({
               }}
               className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[10px] font-bold tracking-wider uppercase transition-all shadow-sm"
             >
-              Bulk Delete
+              Xóa đã chọn
             </button>
           </div>
         </div>
@@ -278,33 +291,33 @@ export function ProductsAdminView({
                     )}
                   </button>
                 </th>
-                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Piece Preview</th>
+                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Ảnh</th>
                 
                 <th className="py-4 px-2 text-[9px] font-bold tracking-widest uppercase text-[#444748] cursor-pointer hover:text-[#1b1c1c]" onClick={() => toggleSort("name")}>
                   <div className="flex items-center gap-1">
-                    Piece name & Specs
+                    Tên & thông số
                     <ArrowUpDown size={10} />
                   </div>
                 </th>
                 
-                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Category</th>
+                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Danh mục</th>
                 
                 <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] cursor-pointer hover:text-[#1b1c1c] text-right" onClick={() => toggleSort("price")}>
                   <div className="flex items-center gap-1 justify-end">
-                    Price (USD)
+                    Giá
                     <ArrowUpDown size={10} />
                   </div>
                 </th>
                 
                 <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] cursor-pointer hover:text-[#1b1c1c] text-right" onClick={() => toggleSort("stock")}>
                   <div className="flex items-center gap-1 justify-end">
-                    In Stock
+                    Tồn kho
                     <ArrowUpDown size={10} />
                   </div>
                 </th>
 
-                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-center">Status</th>
-                <th className="py-4 pr-6 pl-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-right">Actions</th>
+                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-center">Trạng thái</th>
+                <th className="py-4 pr-6 pl-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#c4c7c7]/10 text-xs">
@@ -348,16 +361,16 @@ export function ProductsAdminView({
                       </td>
 
                       <td className="py-4 px-4 uppercase text-[9px] font-bold tracking-wider text-[#444748]">
-                        {p.category}
+                        {CATEGORY_LABELS[p.category] || p.category}
                       </td>
 
                       <td className="py-4 px-4 text-right font-display font-bold text-sm text-[#1b1c1c]">
-                        ${p.price.toLocaleString("en-US")}.00
+                        {p.price.toLocaleString("vi-VN")} đ
                       </td>
 
                       <td className="py-4 px-4 text-right">
                         <span className={`font-mono font-medium ${p.stock <= 5 ? "text-red-700 font-bold" : "text-[#1b1c1c]"}`}>
-                          {p.stock} units
+                          {p.stock} cái
                         </span>
                       </td>
 
@@ -369,7 +382,7 @@ export function ProductsAdminView({
                             ? "bg-amber-50 text-amber-700 border border-[#fed488]/30"
                             : "bg-red-50 text-red-700 border border-red-100"
                         }`}>
-                          {p.status}
+                          {STATUS_LABELS[p.status]}
                         </span>
                       </td>
 
@@ -378,14 +391,14 @@ export function ProductsAdminView({
                           <button
                             onClick={() => onEditProduct(p)}
                             className="p-1.5 text-[#444748] hover:text-[#775a19] hover:bg-[#efeded]/50 rounded-lg transition-colors"
-                            title="Edit piece curation"
+                            title="Sửa sản phẩm"
                           >
                             <Edit3 size={14} />
                           </button>
                           <button
                             onClick={() => onDeleteProduct(p)}
                             className="p-1.5 text-[#444748] hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            title="De-curate piece"
+                            title="Xóa sản phẩm"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -399,7 +412,7 @@ export function ProductsAdminView({
                   <td colSpan={8} className="py-20 text-center flex-col justify-center text-[#444748]">
                     <div className="flex flex-col items-center gap-3">
                       <AlertCircle className="w-12 h-12 text-[#c4c7c7]" />
-                      <p className="font-display font-semibold text-base italic">No boutique pieces found</p>
+                      <p className="font-display font-semibold text-base italic">Không tìm thấy sản phẩm</p>
                       <button 
                         onClick={() => {
                           setSearchTerm("");
@@ -408,7 +421,7 @@ export function ProductsAdminView({
                         }}
                         className="px-4 py-1.5 border border-[#775a19] text-[#775a19] rounded-full text-[10px] font-bold tracking-widest uppercase hover:bg-[#775a19] hover:text-white transition-all"
                       >
-                        RESET SEARCH FILTERS
+                        Xóa bộ lọc
                       </button>
                     </div>
                   </td>
@@ -422,11 +435,11 @@ export function ProductsAdminView({
         {totalPages > 1 && (
           <div className="px-6 py-4 bg-[#fbf9f9]/50 border-t border-[#c4c7c7]/20 flex justify-between items-center text-xs">
             <span className="text-[#444748] font-medium">
-              Showing <span className="font-bold text-[#1b1c1c]">{(currentPage - 1) * itemsPerPage + 1}</span> to{" "}
+              Hiển thị <span className="font-bold text-[#1b1c1c]">{(currentPage - 1) * itemsPerPage + 1}</span> đến{" "}
               <span className="font-bold text-[#1b1c1c]">
                 {Math.min(currentPage * itemsPerPage, totalItems)}
               </span>{" "}
-              of <span className="font-bold text-[#1b1c1c]">{totalItems}</span> pieces
+              trong <span className="font-bold text-[#1b1c1c]">{totalItems}</span> sản phẩm
             </span>
 
             <div className="flex items-center gap-2">

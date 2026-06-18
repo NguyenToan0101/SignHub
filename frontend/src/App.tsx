@@ -14,7 +14,7 @@ import { OurStoryView } from "./components/OurStoryView";
 import { CartSidebar } from "./components/CartSidebar";
 import { PRODUCTS, Product } from "./data";
 import { api, ApiCart } from "./api";
-import { CheckCircle, Sparkles } from "lucide-react";
+import { CheckCircle, Sparkles, X } from "lucide-react";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 
 export default function App() {
@@ -31,6 +31,20 @@ export default function App() {
 
   const [cart, setCart] = React.useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = React.useState(false);
+  const [customer, setCustomer] = React.useState<{ name: string; email: string } | null>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("signhub_customer") || "null");
+    } catch {
+      return null;
+    }
+  });
+  const [isCustomerAuthOpen, setIsCustomerAuthOpen] = React.useState(false);
+  const [pendingCartAction, setPendingCartAction] = React.useState<{
+    product: Product;
+    quantity: number;
+    finish: string;
+    size: string;
+  } | null>(null);
 
   // Elegant minimalist customized Toast Notify banner
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
@@ -77,6 +91,18 @@ export default function App() {
   }, [sessionId]);
 
   const handleAddToCart = async (product: Product, quantity: number, finish: string, size: string) => {
+    const signedInCustomer = customer || (() => {
+      try {
+        return JSON.parse(localStorage.getItem("signhub_customer") || "null");
+      } catch {
+        return null;
+      }
+    })();
+    if (!signedInCustomer) {
+      setPendingCartAction({ product, quantity, finish, size });
+      setIsCustomerAuthOpen(true);
+      return;
+    }
     const variant = product.variants?.find((item) => item.size === size);
     if (product.backendId) {
       try {
@@ -157,6 +183,18 @@ export default function App() {
   };
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  const handleCustomerAuth = (nextCustomer: { name: string; email: string }) => {
+    localStorage.setItem("signhub_customer", JSON.stringify(nextCustomer));
+    setCustomer(nextCustomer);
+    setIsCustomerAuthOpen(false);
+    showToast(`Xin chào ${nextCustomer.name}. Bạn có thể thêm sản phẩm vào giỏ.`, "success");
+    if (pendingCartAction) {
+      const action = pendingCartAction;
+      setPendingCartAction(null);
+      setTimeout(() => handleAddToCart(action.product, action.quantity, action.finish, action.size), 0);
+    }
+  };
 
   // Render correct active page container view
   const renderPage = () => {
@@ -271,6 +309,15 @@ export default function App() {
       {/* 5. Custom persistent floating speed dial FAB triggers */}
       <FloatingContact />
 
+      <CustomerAuthModal
+        isOpen={isCustomerAuthOpen}
+        onClose={() => {
+          setIsCustomerAuthOpen(false);
+          setPendingCartAction(null);
+        }}
+        onAuthenticated={handleCustomerAuth}
+      />
+
       {/* 6. Mobile specific bottom overlay bar navigation */}
       <MobileBottomNavigation activePage={activePage} setActivePage={setActivePage} />
 
@@ -288,6 +335,72 @@ export default function App() {
         </div>
       )}
 
+    </div>
+  );
+}
+
+function CustomerAuthModal({
+  isOpen,
+  onClose,
+  onAuthenticated,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onAuthenticated: (customer: { name: string; email: string }) => void;
+}) {
+  const [mode, setMode] = React.useState<"login" | "register">("login");
+  const [form, setForm] = React.useState({ name: "", email: "", password: "" });
+  const [error, setError] = React.useState("");
+
+  if (!isOpen) return null;
+
+  const submit = (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+    if (!form.email || !form.password || (mode === "register" && !form.name)) {
+      setError("Vui lòng nhập đầy đủ thông tin.");
+      return;
+    }
+    onAuthenticated({
+      name: form.name || form.email.split("@")[0],
+      email: form.email,
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-[120] flex items-center justify-center px-6 font-sans">
+      <div className="absolute inset-0 bg-[#1b1c1c]/45 backdrop-blur-sm" onClick={onClose} />
+      <form onSubmit={submit} className="relative w-full max-w-md bg-white border border-[#c4c7c7]/30 rounded-2xl p-7 shadow-2xl space-y-5 animate-in fade-in slide-in-from-bottom-4">
+        <button type="button" onClick={onClose} className="absolute right-4 top-4 p-2 rounded-full hover:bg-[#efeded]" aria-label="Đóng">
+          <X size={16} />
+        </button>
+        <div>
+          <span className="text-[10px] tracking-widest font-bold text-[#775a19] uppercase">SignHub Account</span>
+          <h2 className="font-display text-3xl text-[#1b1c1c] mt-2">
+            {mode === "login" ? "Đăng nhập để thêm giỏ hàng" : "Tạo tài khoản SignHub"}
+          </h2>
+        </div>
+        <div className="grid grid-cols-2 gap-2 bg-[#fbf9f9] border border-[#c4c7c7]/30 rounded-full p-1">
+          <button type="button" onClick={() => setMode("login")} className={`py-2 rounded-full text-xs font-bold ${mode === "login" ? "bg-white text-[#775a19] shadow-sm" : "text-[#444748]"}`}>Đăng nhập</button>
+          <button type="button" onClick={() => setMode("register")} className={`py-2 rounded-full text-xs font-bold ${mode === "register" ? "bg-white text-[#775a19] shadow-sm" : "text-[#444748]"}`}>Đăng ký</button>
+        </div>
+        {mode === "register" && (
+          <input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} className="admin-input text-sm" placeholder="Họ tên" />
+        )}
+        <input type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} className="admin-input text-sm" placeholder="Email" />
+        <input type="password" value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} className="admin-input text-sm" placeholder="Mật khẩu" />
+        {error && <p className="text-xs text-red-700 bg-red-50 border border-red-100 rounded-xl p-3">{error}</p>}
+        <button type="submit" className="w-full py-3.5 bg-[#1b1c1c] text-white rounded-full text-xs font-bold tracking-widest uppercase hover:bg-[#775a19]">
+          Tiếp tục
+        </button>
+        <button
+          type="button"
+          onClick={() => onAuthenticated({ name: "Google User", email: "google.customer@gmail.com" })}
+          className="w-full py-3.5 border border-[#c4c7c7] text-[#1b1c1c] rounded-full text-xs font-bold tracking-widest uppercase hover:bg-[#fbf9f9]"
+        >
+          Đăng nhập bằng Google
+        </button>
+      </form>
     </div>
   );
 }

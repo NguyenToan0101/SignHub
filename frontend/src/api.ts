@@ -87,6 +87,63 @@ export interface ApiCart {
   subtotal: number;
 }
 
+export interface ApiAuthResponse {
+  token: string;
+  tokenType: string;
+  userId: string;
+  fullName: string;
+  email: string;
+  role: string;
+}
+
+export interface ApiAddress {
+  fullName: string;
+  phone: string;
+  email: string;
+  province: string;
+  district: string;
+  ward: string;
+  detailAddress: string;
+}
+
+export interface ApiOrderItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productCode: string;
+  variantSize?: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  thumbnailUrl?: string;
+}
+
+export interface ApiOrder {
+  id: string;
+  orderCode: string;
+  billingAddress: ApiAddress;
+  shippingAddress?: ApiAddress;
+  shipToDifferentAddress: boolean;
+  note?: string;
+  subtotal: number;
+  shippingFee: number;
+  discountAmount: number;
+  totalAmount: number;
+  paymentMethod: string;
+  paymentStatus: "UNPAID" | "PAID";
+  orderStatus: "PENDING" | "CONFIRMED" | "SHIPPING" | "COMPLETED" | "CANCELLED";
+  couponCode?: string;
+  items: ApiOrderItem[];
+  createdAt?: string;
+}
+
+export interface ApiDashboard {
+  products: number;
+  orders: number;
+  contactMessages: number;
+  revenue: number;
+}
+
 export interface OrderPayload {
   sessionId: string;
   billingAddress: {
@@ -103,6 +160,23 @@ export interface OrderPayload {
   note?: string;
   couponCode?: string;
   paymentMethod: "COD" | "BANK_TRANSFER" | "MOMO" | "VNPAY";
+}
+
+export interface AdminProductPayload {
+  name: string;
+  slug?: string;
+  code: string;
+  shortDescription?: string;
+  description?: string;
+  material?: string;
+  thickness?: string;
+  weight?: string;
+  basePrice: number;
+  status?: "ACTIVE" | "INACTIVE";
+  featured?: boolean;
+  categoryId?: string;
+  images?: { imageUrl: string; mainImage?: boolean; sortOrder?: number }[];
+  variants?: { size: string; extraPrice: number; stockQuantity: number; active?: boolean }[];
 }
 
 function absoluteImageUrl(url?: string) {
@@ -161,8 +235,8 @@ export function mapApiBlog(post: ApiBlogPost): JournalPost {
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
     ...options,
+    headers: { "Content-Type": "application/json", ...(options?.headers || {}) },
   });
 
   if (!response.ok) {
@@ -172,6 +246,33 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
   if (response.status === 204) return undefined as T;
   return response.json();
+}
+
+async function uploadRequest<T>(path: string, formData: FormData): Promise<T> {
+  const token = localStorage.getItem("signhub_admin_token");
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || `API error ${response.status}`);
+  }
+
+  return response.json();
+}
+
+async function adminRequest<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = localStorage.getItem("signhub_admin_token");
+  return request<T>(path, {
+    ...options,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options?.headers || {}),
+    },
+  });
 }
 
 export const api = {
@@ -195,5 +296,41 @@ export const api = {
   createOrder: (payload: OrderPayload) => request<{ orderCode: string; totalAmount: number }>("/api/orders", {
     method: "POST",
     body: JSON.stringify(payload),
+  }),
+  uploadAdminProductImage: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return uploadRequest<{ url: string; key: string; fileName: string; contentType: string; size: number }>(
+      "/api/admin/uploads/product-images",
+      formData
+    );
+  },
+  adminLogin: (payload: { email: string; password: string }) => request<ApiAuthResponse>("/api/admin/auth/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }),
+  getAdminDashboard: () => adminRequest<ApiDashboard>("/api/admin/dashboard"),
+  updateAdminProfile: (payload: { fullName: string; email: string; phone?: string }) => adminRequest<ApiAuthResponse>("/api/admin/profile", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  }),
+  changeAdminPassword: (payload: { currentPassword: string; newPassword: string }) => adminRequest<void>("/api/admin/profile/password", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  }),
+  getAdminProducts: (params = "?page=0&size=200") => adminRequest<ApiPage<ApiProduct>>(`/api/admin/products${params}`),
+  getAdminOrders: (params = "?page=0&size=200") => adminRequest<ApiPage<ApiOrder>>(`/api/admin/orders${params}`),
+  createAdminProduct: (payload: AdminProductPayload) => adminRequest<ApiProduct>("/api/admin/products", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }),
+  updateAdminProduct: (id: string, payload: AdminProductPayload) => adminRequest<ApiProduct>(`/api/admin/products/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  }),
+  deleteAdminProduct: (id: string) => adminRequest<void>(`/api/admin/products/${id}`, { method: "DELETE" }),
+  updateAdminOrderStatus: (id: string, status: ApiOrder["orderStatus"]) => adminRequest<ApiOrder>(`/api/admin/orders/${id}/status`, {
+    method: "PUT",
+    body: JSON.stringify({ status }),
   }),
 };

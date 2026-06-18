@@ -26,15 +26,15 @@ export function AnalyticsView({ products, orders }: AnalyticsViewProps) {
     // Standardize metrics for Excel
     const dataToExport = MONTHLY_REVENUE_DATA.map((item) => ({
       Month: item.month,
-      "Revenue Generated ($)": item.revenue,
-      "Orders Fulfilled": item.orders,
-      "Average Order Value ($)": Math.round(item.revenue / item.orders)
+      "Doanh thu": item.revenue,
+      "Số đơn": item.orders,
+      "Giá trị trung bình": Math.round(item.revenue / item.orders)
     }));
 
     exportToExcel(
       dataToExport,
-      ["Month", "Revenue Generated ($)", "Orders Fulfilled", "Average Order Value ($)"],
-      ["Month", "Revenue Generated ($)", "Orders Fulfilled", "Average Order Value ($)"],
+      ["Tháng", "Doanh thu", "Số đơn", "Giá trị trung bình"],
+      ["Tháng", "Doanh thu", "Số đơn", "Giá trị trung bình"],
       "revenue_analytics.xlsx"
     );
   };
@@ -52,7 +52,7 @@ export function AnalyticsView({ products, orders }: AnalyticsViewProps) {
             INTELLIGENCE DESK
           </span>
           <h1 className="font-display text-3xl font-bold text-[#1b1c1c] tracking-tight">
-            Fiscal & Analytical Chronology
+            Thống kê doanh thu và vận hành
           </h1>
         </div>
 
@@ -65,10 +65,10 @@ export function AnalyticsView({ products, orders }: AnalyticsViewProps) {
               onChange={(e) => setDateFilter(e.target.value as any)}
               className="bg-transparent border-none focus:outline-none focus:ring-0 text-[#1b1c1c] text-xs cursor-pointer py-0 font-sans"
             >
-              <option value="today">Today (June 15)</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="custom">Custom Range</option>
+              <option value="today">Hôm nay</option>
+              <option value="week">Tuần này</option>
+              <option value="month">Tháng này</option>
+              <option value="custom">Tùy chọn</option>
             </select>
           </div>
 
@@ -94,10 +94,10 @@ export function AnalyticsView({ products, orders }: AnalyticsViewProps) {
           <button 
             onClick={handleExportStats}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#775a19] hover:bg-[#5e4713] text-white text-[10px] font-bold uppercase tracking-wider transition-colors shadow-md shadow-[#775a19]/10"
-            title="Download Excel spreadsheet"
+            title="Tải file Excel"
           >
             <Download size={11} />
-            EXPORT EXCEL
+            Xuất Excel
           </button>
         </div>
       </div>
@@ -151,7 +151,7 @@ export function AnalyticsView({ products, orders }: AnalyticsViewProps) {
               CATEGORY AUDIT
             </span>
             <h4 className="font-display text-lg font-bold text-[#1b1c1c] mb-6">
-              Product Category Performance & Revenue Shares
+              Hiệu suất danh mục và tỷ trọng doanh thu
             </h4>
 
             {/* Custom stylized beautiful bars */}

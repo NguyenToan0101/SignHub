@@ -24,12 +24,12 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
 
   // Quick sidebar links
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "analytics", label: "Analytics", icon: BarChart3 },
-    { id: "products", label: "Products", icon: Inbox },
-    { id: "orders", label: "Orders", icon: ShoppingCart },
-    { id: "customers", label: "Customers", icon: Users },
-    { id: "profile", label: "Settings", icon: Settings },
+    { id: "dashboard", label: "Tổng quan", icon: LayoutDashboard },
+    { id: "analytics", label: "Thống kê", icon: BarChart3 },
+    { id: "products", label: "Sản phẩm", icon: Inbox },
+    { id: "orders", label: "Đơn hàng", icon: ShoppingCart },
+    { id: "customers", label: "Khách hàng", icon: Users },
+    { id: "profile", label: "Cài đặt", icon: Settings },
   ];
 
   return (
@@ -51,7 +51,7 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
                 L'ART DÉCOR
               </h2>
               <span className="text-[8px] font-bold tracking-[0.25em] text-[#775a19] uppercase block -mt-1">
-                ATELIER ADMIN
+                TRANG QUẢN TRỊ
               </span>
             </div>
           </div>
@@ -102,7 +102,7 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
             className="w-full flex items-center justify-center gap-2.5 py-3 border border-[#c4c7c7]/40 rounded-xl text-xs font-bold tracking-wider uppercase text-[#444748] hover:text-red-700 hover:border-red-200 hover:bg-red-50/50 transition-all duration-300"
           >
             <LogOut size={14} />
-            LOGOUT PORTAL
+            Đăng xuất
           </button>
         </div>
       </aside>
@@ -125,7 +125,7 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <span className="text-xs font-display tracking-widest font-bold text-[#775a19]">
-                    L'ART COMPASS
+                    Bảng quản trị
                   </span>
                 </div>
                 <button 
@@ -167,7 +167,7 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
                 className="w-full flex items-center justify-center gap-2 py-3 border border-red-200 rounded-xl text-xs font-bold tracking-wider uppercase text-red-700 bg-red-50 hover:bg-red-500 hover:text-white transition-all duration-300"
               >
                 <LogOut size={14} />
-                LOGOUT
+                Đăng xuất
               </button>
             </div>
           </div>
@@ -187,14 +187,14 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
               id="mobile-sidebar-toggle-btn"
               onClick={() => setIsMobileSidebarOpen(true)}
               className="lg:hidden p-2 text-[#1b1c1c] hover:bg-[#efeded]/50 rounded-lg"
-              aria-label="Open sidebar"
+              aria-label="Mở menu"
             >
               <Menu size={22} />
             </button>
             <div className="hidden sm:flex items-center gap-2 bg-[#fbf9f9] border border-[#c4c7c7]/30 px-3.5 py-1.5 rounded-full w-64 md:w-80">
               <Search size={14} className="text-[#444748]/50" />
               <input 
-                placeholder="Search across L'Art archives..." 
+                placeholder="Tìm kiếm trong trang quản trị..." 
                 className="bg-transparent border-none text-xs font-sans focus:outline-none focus:ring-0 placeholder-[#444748]/40 w-full"
               />
             </div>
@@ -211,7 +211,7 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
                   setIsProfileDropdownOpen(false);
                 }}
                 className="p-2.5 rounded-full hover:bg-[#efeded]/40 text-[#444748] hover:text-[#1b1c1c] relative transition-colors"
-                aria-label="Notifications"
+                aria-label="Thông báo"
               >
                 <Bell size={18} />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-[#775a19] rounded-full animate-bounce" />
@@ -223,23 +223,23 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
                   id="notifications-dropdown"
                 >
                   <h3 className="font-sans text-[10px] tracking-widest font-bold uppercase text-[#775a19] mb-3">
-                    CHRONICLE ALERTS
+                    THÔNG BÁO
                   </h3>
                   <div className="space-y-4 max-h-60 overflow-y-auto">
                     <div className="pb-3 border-b border-[#c4c7c7]/10">
-                      <span className="text-[9px] font-bold text-[#775a19] block">STOCK WARNING</span>
-                      <p className="text-xs text-[#1b1c1c] mt-0.5">Nén Lounge Chair inventory dropped to 3 units.</p>
-                      <span className="text-[9px] text-[#444748]/60 font-medium block mt-1">10 minutes ago</span>
+                      <span className="text-[9px] font-bold text-[#775a19] block">CẢNH BÁO TỒN KHO</span>
+                      <p className="text-xs text-[#1b1c1c] mt-0.5">Một sản phẩm chỉ còn 3 cái trong kho.</p>
+                      <span className="text-[9px] text-[#444748]/60 font-medium block mt-1">10 phút trước</span>
                     </div>
                     <div className="pb-3 border-b border-[#c4c7c7]/10">
-                      <span className="text-[9px] font-bold text-green-700 block">NEW ORDER SELECTION</span>
-                      <p className="text-xs text-[#1b1c1c] mt-0.5">ORD-2026-001 has been registered by Pham Minh Hoang.</p>
-                      <span className="text-[9px] text-[#444748]/60 font-medium block mt-1">2 hours ago</span>
+                      <span className="text-[9px] font-bold text-green-700 block">ĐƠN HÀNG MỚI</span>
+                      <p className="text-xs text-[#1b1c1c] mt-0.5">ORD-2026-001 vừa được tạo bởi Phạm Minh Hoàng.</p>
+                      <span className="text-[9px] text-[#444748]/60 font-medium block mt-1">2 giờ trước</span>
                     </div>
                     <div>
-                      <span className="text-[9px] font-bold text-[#444748] block">SYSTEM NOTE</span>
-                      <p className="text-xs text-[#1b1c1c] mt-0.5">Backup system log exported successfully.</p>
-                      <span className="text-[9px] text-[#444748]/60 font-medium block mt-1">1 day ago</span>
+                      <span className="text-[9px] font-bold text-[#444748] block">HỆ THỐNG</span>
+                      <p className="text-xs text-[#1b1c1c] mt-0.5">Xuất nhật ký sao lưu thành công.</p>
+                      <span className="text-[9px] text-[#444748]/60 font-medium block mt-1">1 ngày trước</span>
                     </div>
                   </div>
                 </div>
@@ -269,7 +269,7 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
                 >
                   <div className="pb-3 border-b border-[#c4c7c7]/10 mb-2 px-1">
                     <span className="text-[8px] font-bold text-[#775a19] tracking-widest uppercase">
-                      PORTAL CURATOR
+                      QUẢN TRỊ VIÊN
                     </span>
                     <h5 className="text-xs font-bold text-[#1b1c1c] mt-0.5 truncate">
                       {ADMIN_PROFILE_DEFAULT.name}
@@ -286,13 +286,13 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
                       }}
                       className="text-left font-sans text-[11px] font-semibold tracking-wider text-[#444748] hover:text-[#1b1c1c] p-2 hover:bg-[#efeded]/30 rounded-lg"
                     >
-                      EDIT PROFILE
+                      Sửa hồ sơ
                     </button>
                     <button
                       onClick={onLogout}
                       className="text-left font-sans text-[11px] font-semibold tracking-wider text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded-lg"
                     >
-                      EXIT ADMIN PORTAL
+                      Thoát quản trị
                     </button>
                   </div>
                 </div>

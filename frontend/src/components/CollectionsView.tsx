@@ -33,7 +33,7 @@ export function CollectionsView({ onSelectProduct }: CollectionsViewProps) {
 
   const categoriesOrder: { value: CategoryType; label: string }[] = [
     { value: "all", label: "TẤT CẢ" },
-    ...Array.from(new Map(products.map((product) => [product.category, product.categoryName || product.category])).entries())
+    ...Array.from(new Map<string, string>(products.map((product) => [product.category, product.categoryName || product.category])).entries())
       .map(([value, label]) => ({ value, label: label.toUpperCase() }))
   ];
 

@@ -32,6 +32,21 @@
   scrollbar-width: none;
 }
 
+@utility admin-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(196, 199, 199, 0.6);
+  background: white;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  outline: none;
+}
+
+.admin-input:focus {
+  border-color: #775a19;
+  box-shadow: 0 0 0 1px #775a19;
+}
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -53,4 +68,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #775a19;
 }
-

@@ -73,7 +73,7 @@ export function CustomersAdminView({
             CLIENT CONVENTIONS
           </span>
           <h1 className="font-display text-3xl font-bold text-[#1b1c1c] tracking-tight">
-            VIP Client Registry
+            Danh sách khách hàng
           </h1>
         </div>
 
@@ -91,7 +91,7 @@ export function CustomersAdminView({
         <Search size={14} className="text-[#444748]/60" />
         <input 
           type="text"
-          placeholder="Search customer name, email, or telephone..." 
+          placeholder="Tìm tên, email hoặc số điện thoại..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="bg-transparent border-none text-xs focus:ring-0 focus:outline-none placeholder-[#444748]/40 w-full"
@@ -104,7 +104,7 @@ export function CustomersAdminView({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#c4c7c7]/20 bg-[#fbf9f9]/50">
-                <th className="py-4 pl-6 pr-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Client reference</th>
+                <th className="py-4 pl-6 pr-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Mã khách hàng</th>
                 <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Direct Details</th>
                 <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Joined date</th>
                 <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-right">Sum total spent</th>
@@ -156,7 +156,7 @@ export function CustomersAdminView({
                           ? "bg-green-50 text-green-700 border border-green-100" 
                           : "bg-red-50 text-red-700 border border-red-100"
                       }`}>
-                        {cust.status === "Active" ? "Active" : "Locked / Barred"}
+                        {cust.status === "Active" ? "Đang hoạt động" : "Đã khóa"}
                       </span>
                     </td>
 
@@ -165,14 +165,14 @@ export function CustomersAdminView({
                         <button
                           onClick={() => setSelectedCustomer(cust)}
                           className="p-1.5 text-[#444748] hover:text-[#775a19] hover:bg-[#efeded]/50 rounded-lg transition-colors"
-                          title="View dynamic client dashboard"
+                          title="Xem chi tiết khách hàng"
                         >
                           <Eye size={14} />
                         </button>
                         <button
                           onClick={() => onToggleCustomerLock(cust.id)}
                           className={`p-1.5 rounded-lg transition-colors ${cust.status === "Active" ? "text-[#444748] hover:text-red-600 hover:bg-red-50" : "text-[#775a19] hover:bg-[#775a19]/10"}`}
-                          title={cust.status === "Active" ? "Restrict client profile" : "Grant access permissions"}
+                          title={cust.status === "Active" ? "Khóa tài khoản" : "Mở khóa tài khoản"}
                         >
                           {cust.status === "Active" ? <Lock size={14} /> : <Unlock size={14} />}
                         </button>
@@ -213,7 +213,7 @@ export function CustomersAdminView({
                     CLIENT ARCHIVE
                   </span>
                   <h3 className="font-display text-2xl font-bold text-[#1b1c1c]">
-                    Profile Dossier
+                    Hồ sơ khách hàng
                   </h3>
                 </div>
                 <button 
@@ -236,7 +236,7 @@ export function CustomersAdminView({
                     <h4 className="font-display text-xl font-bold text-[#1b1c1c]">
                       {selectedCustomer.name}
                     </h4>
-                    <span className="text-[10px] font-mono text-[#444748]">Client Reference: {selectedCustomer.id}</span>
+                    <span className="text-[10px] font-mono text-[#444748]">Mã khách hàng: {selectedCustomer.id}</span>
                   </div>
                   
                   {/* Lock/Unlock Toggle directly inside the drawer card */}
@@ -310,7 +310,7 @@ export function CustomersAdminView({
                         </div>
                         
                         <div className="pt-2 border-t border-[#c4c7c7]/10 flex justify-between items-baseline">
-                          <span className="text-[9px] tracking-wider uppercase text-[#444748] font-bold">Total Spent</span>
+                          <span className="text-[9px] tracking-wider uppercase text-[#444748] font-bold">Tổng chi tiêu</span>
                           <strong className="text-sm font-display text-[#775a19]">${o.totalPrice.toLocaleString()}.00</strong>
                         </div>
                       </div>

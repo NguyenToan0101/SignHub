@@ -13,6 +13,7 @@ interface DashboardViewProps {
   products: AdminProduct[];
   orders: AdminOrder[];
   customers: AdminCustomer[];
+  lowStockThreshold: number;
   onNavigateToTab: (tab: string) => void;
   onSelectOrder: (order: AdminOrder) => void;
 }
@@ -21,6 +22,7 @@ export function DashboardView({
   products, 
   orders, 
   customers, 
+  lowStockThreshold,
   onNavigateToTab, 
   onSelectOrder 
 }: DashboardViewProps) {
@@ -31,7 +33,7 @@ export function DashboardView({
     .reduce((acc, o) => acc + o.totalPrice, 0) + 124500; // adding historical base for realism
 
   const activeOrders = orders.filter(o => o.deliveryStatus !== "Delivered" && o.deliveryStatus !== "Cancelled").length;
-  const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= 5);
+  const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= lowStockThreshold);
   const outOfStockCount = products.filter(p => p.stock === 0).length;
   
   // Best seller logic from orders items count
@@ -129,7 +131,7 @@ export function DashboardView({
           </div>
           <div>
             <h3 className="font-display text-3xl font-bold text-[#1b1c1c] tracking-tight">
-              {activeOrders} Pending
+              {activeOrders} đang chờ
             </h3>
             <span className="text-[9px] text-[#444748] font-bold tracking-wider uppercase block mt-1.5">
               {orders.length} TOTAL INVOICES FILED
@@ -148,7 +150,7 @@ export function DashboardView({
           </div>
           <div>
             <h3 className="font-display text-3xl font-bold text-[#1b1c1c] tracking-tight">
-              {products.length} Masterpieces
+              {products.length} sản phẩm
             </h3>
             <span className="text-[9px] text-[#775a19] font-bold tracking-wider uppercase block mt-1.5">
               {outOfStockCount > 0 ? `${outOfStockCount} PIECES OUT OF STOCK` : "ALL ARCHIVES FULLY STOCKED"}
@@ -189,7 +191,7 @@ export function DashboardView({
                 ANNUAL FISCAL TRACE
               </span>
               <h4 className="font-display text-lg text-[#1b1c1c] font-semibold mt-0.5">
-                Monthly Revenue Performance ($ USD)
+                Doanh thu theo tháng
               </h4>
             </div>
             <span className="text-[10px] text-[#444748] font-mono">EST. CAP: $150K</span>
@@ -267,7 +269,7 @@ export function DashboardView({
               CHRONOLOGY CRISIS
             </span>
             <h4 className="font-display text-lg text-[#1b1c1c] font-semibold mt-0.5">
-              Critical Low-Stock Alerts
+              Cảnh báo sắp hết hàng
             </h4>
             
             <div className="mt-4 space-y-3">
@@ -320,7 +322,7 @@ export function DashboardView({
                 ACTIVE QUEUE
               </span>
               <h4 className="font-display text-lg text-[#1b1c1c] font-semibold mt-0.5">
-                Recent Showroom Orders
+                Đơn hàng gần đây
               </h4>
             </div>
             <button 
@@ -336,8 +338,8 @@ export function DashboardView({
               <thead>
                 <tr className="border-b border-[#c4c7c7]/20 pb-2">
                   <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Invoice No</th>
-                  <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Client</th>
-                  <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Date</th>
+                  <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Khách hàng</th>
+                  <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Ngày</th>
                   <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Cost</th>
                   <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Delivery</th>
                 </tr>
@@ -378,7 +380,7 @@ export function DashboardView({
               BOUTIQUE FAVORITES
             </span>
             <h4 className="font-display text-lg text-[#1b1c1c] font-semibold mt-0.5">
-              Covenant Best-Sellers
+              Sản phẩm bán chạy
             </h4>
 
             <div className="mt-5 space-y-4">

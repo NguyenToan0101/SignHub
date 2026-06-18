@@ -4,7 +4,7 @@
  */
 
 /**
- * Utility to export tabular data to a Microsoft Excel-compatible file format.
+ * Utility to export tabular data to a Microsoft Excel-compatible CSV file.
  * Utilizes a Unicode UTF-8 Byte Order Mark (BOM) to guarantee that Vietnamese characters,
  * accents, and currency symbols render cleanly inside Microsoft Excel on both Windows and macOS.
  */
@@ -38,13 +38,13 @@ export function exportToExcel(
     csvContent += line.join(",") + "\r\n";
   });
 
-  // Create a Blob containing the CSV data with spreadsheet MIME type
-  const blob = new Blob([csvContent], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8;" });
+  const safeFileName = fileName.replace(/\.xlsx$/i, ".csv");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   
   const link = document.createElement("a");
   link.setAttribute("href", url);
-  link.setAttribute("download", fileName);
+  link.setAttribute("download", safeFileName);
   link.style.visibility = "hidden";
   document.body.appendChild(link);
   link.click();
