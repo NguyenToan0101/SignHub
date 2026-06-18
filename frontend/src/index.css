@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Be Vietnam Pro", system-ui, -apple-system, sans-serif;
+  --font-display: "EB Garamond", serif;
+  
+  --color-brand-gold: #775a19;
+  --color-brand-gold-light: #fed488;
+  --color-brand-charcoal: #1b1c1c;
+  --color-brand-gray: #444748;
+  --color-brand-light-gray: #efeded;
+  --color-brand-base: #fbf9f9;
+}
+
+@utility glass {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+@utility silk-border {
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+@utility text-glow {
+  text-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom scrollbar for desktop */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fbf9f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c4c7c7;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #775a19;
+}
+

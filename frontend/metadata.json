@@ -1,0 +1,6 @@
+{
+  "name": "L'ART DÉCOR",
+  "description": "Architectural precision and pure editorial luxury design from Vietnam.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
