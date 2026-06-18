@@ -283,6 +283,8 @@ export default function App() {
         setActivePage={setActivePage} 
         cartCount={totalCartCount} 
         openCart={() => setIsCartOpen(true)}
+        openLogin={() => setIsCustomerAuthOpen(true)}
+        customer={customer}
       />
 
       {/* 2. Primary Page view container wrapper */}
@@ -351,6 +353,58 @@ function CustomerAuthModal({
   const [mode, setMode] = React.useState<"login" | "register">("login");
   const [form, setForm] = React.useState({ name: "", email: "", password: "" });
   const [error, setError] = React.useState("");
+  const googleButtonRef = React.useRef<HTMLDivElement | null>(null);
+  const googleClientId = "374766354547-9pi96q0lpqvqlfg4qscbee3qpkms8r0a.apps.googleusercontent.com";
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const initializeGoogle = () => {
+      const google = (window as any).google;
+      if (!google?.accounts?.id || !googleButtonRef.current) return;
+      googleButtonRef.current.innerHTML = "";
+      google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: (response: { credential?: string }) => {
+          if (!response.credential) {
+            setError("Không nhận được thông tin đăng nhập Google.");
+            return;
+          }
+          try {
+            const payload = JSON.parse(atob(response.credential.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+            onAuthenticated({
+              name: payload.name || payload.email?.split("@")[0] || "Google User",
+              email: payload.email,
+            });
+          } catch {
+            setError("Không đọc được thông tin tài khoản Google.");
+          }
+        },
+      });
+      google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: "outline",
+        size: "large",
+        width: Math.min(360, window.innerWidth - 80),
+        text: "signin_with",
+      });
+    };
+
+    if ((window as any).google?.accounts?.id) {
+      initializeGoogle();
+      return;
+    }
+    const existingScript = document.querySelector<HTMLScriptElement>('script[src="https://accounts.google.com/gsi/client"]');
+    if (existingScript) {
+      existingScript.addEventListener("load", initializeGoogle, { once: true });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = initializeGoogle;
+    script.onerror = () => setError("Không tải được Google Login. Kiểm tra cấu hình domain OAuth trong Google Cloud.");
+    document.head.appendChild(script);
+  }, [isOpen, onAuthenticated]);
 
   if (!isOpen) return null;
 
@@ -393,13 +447,7 @@ function CustomerAuthModal({
         <button type="submit" className="w-full py-3.5 bg-[#1b1c1c] text-white rounded-full text-xs font-bold tracking-widest uppercase hover:bg-[#775a19]">
           Tiếp tục
         </button>
-        <button
-          type="button"
-          onClick={() => onAuthenticated({ name: "Google User", email: "google.customer@gmail.com" })}
-          className="w-full py-3.5 border border-[#c4c7c7] text-[#1b1c1c] rounded-full text-xs font-bold tracking-widest uppercase hover:bg-[#fbf9f9]"
-        >
-          Đăng nhập bằng Google
-        </button>
+        <div className="flex min-h-[44px] justify-center" ref={googleButtonRef} />
       </form>
     </div>
   );

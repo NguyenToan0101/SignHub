@@ -168,9 +168,9 @@ export function HomeView({ onExplore, onSelectProduct, onSelectJournal }: HomeVi
               onClick={() => onSelectProduct(product.id)}
               className="min-w-[280px] sm:min-w-[340px] max-w-[340px] group cursor-pointer bg-white rounded-[24px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-[#c4c7c7]/30 flex flex-col justify-between"
             >
-              <div className="aspect-[3/4] overflow-hidden bg-[#fbf9f9] relative">
+              <div className="aspect-[3/4] overflow-hidden bg-white relative">
                 <img 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-contain p-3 transition-transform duration-700 group-hover:scale-105"
                   src={product.image}
                   alt={product.name}
                   referrerPolicy="no-referrer"

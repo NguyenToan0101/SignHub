@@ -4,16 +4,18 @@
  */
 
 import React from "react";
-import { Menu, ShoppingBag, Search, Mail, MessageSquare, Phone, X, ShoppingCart, Info, Globe, ShieldCheck, Heart, User, Home, BookOpen } from "lucide-react";
+import { Menu, ShoppingBag, Search, Mail, MessageSquare, Phone, X, User, Home, BookOpen } from "lucide-react";
 
 interface NavbarProps {
   activePage: string;
   setActivePage: (page: string) => void;
   cartCount: number;
   openCart: () => void;
+  openLogin: () => void;
+  customer?: { name: string; email: string } | null;
 }
 
-export function Navbar({ activePage, setActivePage, cartCount, openCart }: NavbarProps) {
+export function Navbar({ activePage, setActivePage, cartCount, openCart, openLogin, customer }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -78,15 +80,6 @@ export function Navbar({ activePage, setActivePage, cartCount, openCart }: Navba
           {/* Trailing Icons */}
           <div className="flex items-center gap-4">
             <button 
-              onClick={() => setActivePage("admin")}
-              className={`p-1.5 hover:text-brand-gold transition-colors flex items-center gap-1.5 ${activePage === "admin" ? "text-brand-gold" : "text-[#1b1c1c]"}`}
-              title="Vào trang quản trị SignHub"
-              id="topbar-admin-portal-trigger"
-            >
-              <ShieldCheck size={19} className="stroke-[1.75]" />
-              <span className="hidden lg:inline text-[8px] font-bold tracking-widest uppercase text-[#444748] hover:text-[#1b1c1c]">Quản trị</span>
-            </button>
-            <button 
               onClick={() => setActivePage("collections")}
               className="text-[#1b1c1c] p-2 hover:opacity-70 transition-opacity"
               aria-label="Tìm kiếm"
@@ -104,6 +97,17 @@ export function Navbar({ activePage, setActivePage, cartCount, openCart }: Navba
                   {cartCount}
                 </span>
               )}
+            </button>
+            <button 
+              onClick={openLogin}
+              className="p-1.5 hover:text-brand-gold transition-colors flex items-center gap-1.5 text-[#1b1c1c]"
+              title={customer ? customer.email : "Đăng nhập"}
+              id="topbar-login-trigger"
+            >
+              <User size={19} className="stroke-[1.75]" />
+              <span className="hidden lg:inline text-[8px] font-bold tracking-widest uppercase text-[#444748] hover:text-[#1b1c1c] max-w-[90px] truncate">
+                {customer ? customer.name : "Đăng nhập"}
+              </span>
             </button>
           </div>
         </nav>
@@ -234,15 +238,6 @@ export function Footer({ setActivePage }: FooterProps) {
             <a href="#" className="hover:text-brand-gold transition-colors uppercase text-xs tracking-wider">
               Chính sách chất lượng
             </a>
-          </li>
-          <li className="pt-2 border-t border-[#c4c7c7]/30">
-            <button 
-              onClick={() => setActivePage("admin")} 
-              className="text-[#775a19] hover:text-[#1b1c1c] transition-colors font-sans font-bold text-[10px] tracking-widest uppercase text-left block"
-              id="footer-admin-portal-trigger"
-            >
-              Trang quản trị
-            </button>
           </li>
         </ul>
       </div>

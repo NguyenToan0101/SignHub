@@ -89,13 +89,13 @@ export function CollectionsView({ onSelectProduct }: CollectionsViewProps) {
                 onClick={() => onSelectProduct(p.id)}
                 className={`group cursor-pointer flex flex-col justify-between ${staggerClass}`}
               >
-                <div className="relative overflow-hidden rounded-[24px] bg-[#f5f3f3] aspect-[4/5] shadow-sm hover:shadow-2xl transition-all duration-700 hover:scale-[1.01] hover:-translate-y-2">
+                <div className="relative overflow-hidden rounded-[24px] bg-white aspect-[4/5] shadow-sm hover:shadow-2xl transition-all duration-700 hover:scale-[1.01] hover:-translate-y-2">
                   
                   {/* High Resolution Image from Provided Assets */}
                   <img 
                     src={p.image} 
                     alt={p.name} 
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                    className="w-full h-full object-contain p-3 transition-transform duration-1000 group-hover:scale-105"
                     referrerPolicy="no-referrer"
                   />
 

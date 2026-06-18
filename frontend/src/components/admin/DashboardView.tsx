@@ -7,7 +7,7 @@ import React from "react";
 import { 
   TrendingUp, ShoppingCart, Inbox, Users, AlertCircle, ArrowRight, ArrowUpRight, ShieldCheck 
 } from "lucide-react";
-import { AdminProduct, AdminOrder, AdminCustomer, MONTHLY_REVENUE_DATA } from "./mockAdminData";
+import { AdminProduct, AdminOrder, AdminCustomer } from "./mockAdminData";
 
 interface DashboardViewProps {
   products: AdminProduct[];
@@ -30,7 +30,7 @@ export function DashboardView({
   // 1. Calculate realistic KPIs from memory arrays
   const totalRevenue = orders
     .filter(o => o.paymentStatus === "Paid" && o.deliveryStatus !== "Cancelled")
-    .reduce((acc, o) => acc + o.totalPrice, 0) + 124500; // adding historical base for realism
+    .reduce((acc, o) => acc + o.totalPrice, 0);
 
   const activeOrders = orders.filter(o => o.deliveryStatus !== "Delivered" && o.deliveryStatus !== "Cancelled").length;
   const lowStockProducts = products.filter(p => p.stock > 0 && p.stock <= lowStockThreshold);
@@ -58,12 +58,11 @@ export function DashboardView({
   // SVG dimensions for Monthly Revenue Line Chart
   const svgWidth = 500;
   const svgHeight = 180;
-  const points = MONTHLY_REVENUE_DATA.map((d, index) => {
-    const x = 50 + (index * (svgWidth - 100)) / (MONTHLY_REVENUE_DATA.length - 1);
-    // scale revenue between 20px and 140px
-    const minRev = 40000;
-    const maxRev = 110000;
-    const y = svgHeight - 30 - ((d.revenue - minRev) * (svgHeight - 60)) / (maxRev - minRev);
+  const monthlyRevenueData = buildMonthlyRevenueData(orders);
+  const maxRevenue = Math.max(1, ...monthlyRevenueData.map((item) => item.revenue));
+  const points = monthlyRevenueData.map((d, index) => {
+    const x = monthlyRevenueData.length === 1 ? svgWidth / 2 : 50 + (index * (svgWidth - 100)) / (monthlyRevenueData.length - 1);
+    const y = svgHeight - 30 - (d.revenue * (svgHeight - 70)) / maxRevenue;
     return { x, y, label: d.month, revenue: d.revenue };
   });
 
@@ -208,9 +207,9 @@ export function DashboardView({
                 <line x1="50" y1="150" x2="450" y2="150" stroke="#c4c7c7" strokeWidth="0.5" />
 
                 {/* Y-axis metrics */}
-                <text x="15" y="34" className="fill-[#444748]/60 text-[8px] font-mono leading-none">$110K</text>
-                <text x="15" y="79" className="fill-[#444748]/60 text-[8px] font-mono leading-none">$75K</text>
-                <text x="15" y="114" className="fill-[#444748]/60 text-[8px] font-mono leading-none">$40K</text>
+                <text x="15" y="34" className="fill-[#444748]/60 text-[8px] font-mono leading-none">{formatShortMoney(maxRevenue)}</text>
+                <text x="15" y="79" className="fill-[#444748]/60 text-[8px] font-mono leading-none">{formatShortMoney(maxRevenue / 2)}</text>
+                <text x="15" y="114" className="fill-[#444748]/60 text-[8px] font-mono leading-none">0</text>
 
                 {/* Line Path */}
                 <path d={linePath} fill="none" stroke="#775a19" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -233,7 +232,7 @@ export function DashboardView({
                       textAnchor="middle" 
                       className="fill-[#1b1c1c] text-[8px] font-mono font-bold opacity-0 group-hover/coord:opacity-100 transition-opacity bg-white px-1"
                     >
-                      ${(pt.revenue / 1000).toFixed(1)}k
+                      {formatShortMoney(pt.revenue)}
                     </text>
                     <text 
                       x={pt.x} 
@@ -251,7 +250,7 @@ export function DashboardView({
 
           <div className="flex justify-between items-center mt-4 pt-4 border-t border-[#c4c7c7]/10">
             <span className="text-[10px] text-[#444748] font-sans">
-              High lookbook season spikes observed in Q2 2026.
+              Dữ liệu được tính trực tiếp từ đơn hàng trong database.
             </span>
             <button 
               onClick={() => onNavigateToTab("analytics")}
@@ -278,7 +277,7 @@ export function DashboardView({
                   <div key={p.id} className="flex gap-3 bg-red-50/50 border border-red-100 p-3 rounded-xl items-center justify-between">
                     <div className="flex gap-3.5 items-center min-w-0">
                       <div className="w-10 h-12 bg-[#efeded] rounded overflow-hidden flex-shrink-0 border border-[#c4c7c7]/10">
-                        <img src={p.image} referrerPolicy="no-referrer" className="w-full h-full object-cover" alt={p.name} />
+                        <img src={p.image} referrerPolicy="no-referrer" className="w-full h-full object-contain bg-white p-1" alt={p.name} />
                       </div>
                       <div className="min-w-0">
                         <h5 className="text-[11px] font-bold text-[#1b1c1c] truncate">{p.name}</h5>
@@ -390,7 +389,7 @@ export function DashboardView({
                     0{index + 1}
                   </span>
                   <div className="w-12 h-14 bg-[#efeded] rounded-lg overflow-hidden border border-[#c4c7c7]/10 flex-shrink-0">
-                    <img src={bs.image} referrerPolicy="no-referrer" alt={bs.name} className="w-full h-full object-cover" />
+                    <img src={bs.image} referrerPolicy="no-referrer" alt={bs.name} className="w-full h-full object-contain bg-white p-1" />
                   </div>
                   <div className="min-w-0 flex-grow">
                     <h5 className="text-[11px] font-bold text-[#1b1c1c] truncate">{bs.name}</h5>
@@ -408,4 +407,39 @@ export function DashboardView({
 
     </div>
   );
+}
+
+function buildMonthlyRevenueData(orders: AdminOrder[]) {
+  const monthKeys: string[] = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i -= 1) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    monthKeys.push(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`);
+  }
+
+  const revenueByMonth = new Map(monthKeys.map((key) => [key, { revenue: 0, orders: 0 }]));
+  orders
+    .filter((order) => order.paymentStatus === "Paid" && order.deliveryStatus !== "Cancelled")
+    .forEach((order) => {
+      const key = order.date?.slice(0, 7);
+      if (!key) return;
+      if (!revenueByMonth.has(key)) revenueByMonth.set(key, { revenue: 0, orders: 0 });
+      const item = revenueByMonth.get(key)!;
+      item.revenue += order.totalPrice;
+      item.orders += 1;
+    });
+
+  return Array.from(revenueByMonth.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(-6)
+    .map(([key, value]) => ({
+      month: new Date(`${key}-01T00:00:00`).toLocaleDateString("vi-VN", { month: "short", year: "numeric" }),
+      ...value,
+    }));
+}
+
+function formatShortMoney(value: number) {
+  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}tr`;
+  if (value >= 1_000) return `${Math.round(value / 1_000)}k`;
+  return `${Math.round(value)}`;
 }
