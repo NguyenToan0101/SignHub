@@ -266,7 +266,7 @@ export function ProductForm({ isOpen, onClose, product, onSave }: ProductFormPro
               {formData.image && (
                 <div className="flex gap-4 items-center p-3 bg-white border border-[#c4c7c7]/20 rounded-xl mt-3">
                   <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-[#efeded] border border-[#c4c7c7]/10">
-                    <img referrerPolicy="no-referrer" src={formData.image} alt="Xem trước ảnh đại diện" className="w-full h-full object-contain bg-white p-2" />
+                    <img referrerPolicy="no-referrer" src={formData.image} alt="Xem trước ảnh đại diện" className="w-full h-full object-cover bg-white" />
                   </div>
                   <div className="min-w-0">
                     <span className="block text-[10px] font-bold uppercase tracking-wider text-[#775a19]">
@@ -292,7 +292,7 @@ export function ProductForm({ isOpen, onClose, product, onSave }: ProductFormPro
                 <div className="grid grid-cols-3 gap-2 p-3 bg-white border border-[#c4c7c7]/20 rounded-xl mt-3">
                   {galleryDrafts.map((item, index) => (
                     <div key={item.id} className="relative group/gal h-16 bg-[#efeded] rounded-lg overflow-hidden border border-[#c4c7c7]/10">
-                      <img referrerPolicy="no-referrer" src={item.url} alt="Ảnh thư viện" className="w-full h-full object-contain bg-white p-1" />
+                      <img referrerPolicy="no-referrer" src={item.url} alt="Ảnh thư viện" className="w-full h-full object-cover bg-white" />
                       <button type="button" onClick={() => handleRemoveGalleryImage(index)} className="absolute inset-0 bg-black/60 opacity-0 group-hover/gal:opacity-100 flex items-center justify-center text-white" title="Xóa ảnh">
                         <Trash2 size={14} />
                       </button>

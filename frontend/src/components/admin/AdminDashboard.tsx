@@ -31,7 +31,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
   const [customers, setCustomers] = React.useState<AdminCustomer[]>([]);
   const [isAuthenticated, setIsAuthenticated] = React.useState(() => Boolean(localStorage.getItem("signhub_admin_token")));
   const [isLoadingData, setIsLoadingData] = React.useState(false);
-  const [loginForm, setLoginForm] = React.useState({ email: "admin@gmail.com", password: "" });
+  const [loginForm, setLoginForm] = React.useState({ email: "admin@gmail.com", password: "123" });
   const [loginError, setLoginError] = React.useState("");
   const [lowStockThreshold, setLowStockThreshold] = React.useState(() => Number(localStorage.getItem("signhub_low_stock_threshold") || "5"));
 
@@ -82,7 +82,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
     setLoginError("");
     try {
       const auth = await api.adminLogin(loginForm);
-      if (auth.email !== "admin@gmail.com" || auth.role !== "ADMIN") {
+      if (auth.role !== "ADMIN") {
         throw new Error("Tài khoản này không có quyền quản trị.");
       }
       localStorage.setItem("signhub_admin_token", auth.token);
@@ -144,7 +144,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
         savedProduct = await api.createAdminProduct(payload);
       }
     } catch (error) {
-      showLocalToast(error instanceof Error ? `Chưa lưu được vào database: ${error.message}` : "Chưa lưu được vào database", "neutral");
+      showLocalToast(error instanceof Error ? `Chưa lưu được: ${error.message}` : "Chưa lưu được", "neutral");
     }
 
     const productWithBackendId = applyBackendId(productData, savedProduct);
@@ -153,7 +153,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
       setProducts((prev) =>
         prev.map((p) => (p.id === selectedProductForCuration.id ? ({ ...p, ...productWithBackendId } as AdminProduct) : p))
       );
-      showLocalToast(savedProduct ? `Đã cập nhật sản phẩm "${productData.name}" và lưu vào database` : `Đã cập nhật tạm sản phẩm "${productData.name}"`, savedProduct ? "success" : "neutral");
+      showLocalToast(savedProduct ? `Đã cập nhật sản phẩm "${productData.name}"` : `Đã cập nhật tạm sản phẩm "${productData.name}"`, savedProduct ? "success" : "neutral");
     } else {
       // Create new
       const newId = `piece-${Date.now()}`;
@@ -175,7 +175,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
         gallery: productWithBackendId.gallery || []
       };
       setProducts((prev) => [newPiece, ...prev]);
-      showLocalToast(savedProduct ? `Đã tạo sản phẩm "${newPiece.name}" và lưu vào database` : `Đã tạo tạm sản phẩm "${newPiece.name}"`, savedProduct ? "success" : "neutral");
+      showLocalToast(savedProduct ? `Đã tạo sản phẩm "${newPiece.name}"` : `Đã tạo tạm sản phẩm "${newPiece.name}"`, savedProduct ? "success" : "neutral");
     }
     setIsProductFormOpen(false);
     setSelectedProductForCuration(null);
@@ -188,7 +188,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
         try {
           await api.deleteAdminProduct(deletingProduct.backendId);
         } catch (error) {
-          showLocalToast(error instanceof Error ? `Chưa xóa được trong database: ${error.message}` : "Chưa xóa được trong database", "neutral");
+          showLocalToast(error instanceof Error ? `Chưa xóa được: ${error.message}` : "Chưa xóa được", "neutral");
           return;
         }
       }
@@ -221,7 +221,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
     try {
       await api.updateAdminOrderStatus(orderId, backendStatus);
     } catch (error) {
-      showLocalToast(error instanceof Error ? `Chưa cập nhật được database: ${error.message}` : "Chưa cập nhật được database", "neutral");
+      showLocalToast(error instanceof Error ? `Chưa cập nhật được: ${error.message}` : "Chưa cập nhật được ", "neutral");
       return;
     }
     setOrders((prev) =>
@@ -260,7 +260,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
           <div>
             <span className="text-[10px] tracking-widest font-bold text-[#775a19] uppercase">SignHub Admin</span>
             <h1 className="font-display text-3xl font-bold text-[#1b1c1c] mt-2">Đăng nhập quản trị</h1>
-            <p className="text-xs text-[#444748] mt-2">Chỉ tài khoản admin@gmail.com mới được vào trang quản trị.</p>
+            <p className="text-xs text-[#444748] mt-2">Chỉ tài khoản có quyền ADMIN mới được vào trang quản trị.</p>
           </div>
           <div className="space-y-4">
             <input type="email" value={loginForm.email} onChange={(e) => setLoginForm((p) => ({ ...p, email: e.target.value }))} className="admin-input text-sm" placeholder="Email" required />
@@ -292,7 +292,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
       >
         {isLoadingData && (
           <div className="mb-6 rounded-xl border border-[#c4c7c7]/30 bg-white px-4 py-3 text-xs font-semibold text-[#444748]">
-            Đang tải dữ liệu thật từ database...
+            Đang tải dữ liệu...
           </div>
         )}
         {/* Dynamic content tab renderer */}

@@ -96,6 +96,13 @@ export interface ApiAuthResponse {
   role: string;
 }
 
+export interface CustomerAuthPayload {
+  fullName?: string;
+  email: string;
+  password: string;
+  confirmPassword?: string;
+}
+
 export interface ApiAddress {
   fullName: string;
   phone: string;
@@ -240,8 +247,18 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   });
 
   if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || `API error ${response.status}`);
+    const text = await response.text();
+    if (text) {
+      let errorMessage = text;
+      try {
+        const error = JSON.parse(text);
+        errorMessage = error.message || text;
+      } catch {
+        errorMessage = text;
+      }
+      throw new Error(errorMessage);
+    }
+    throw new Error(text || `API error ${response.status}`);
   }
 
   if (response.status === 204) return undefined as T;
@@ -308,6 +325,23 @@ export const api = {
     );
   },
   adminLogin: (payload: { email: string; password: string }) => request<ApiAuthResponse>("/api/admin/auth/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  }),
+  customerLogin: (payload: CustomerAuthPayload) => request<ApiAuthResponse>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email: payload.email, password: payload.password }),
+  }),
+  customerRegister: (payload: CustomerAuthPayload) => request<ApiAuthResponse>("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({
+      fullName: payload.fullName,
+      email: payload.email,
+      password: payload.password,
+      confirmPassword: payload.confirmPassword,
+    }),
+  }),
+  customerGoogleLogin: (payload: { credential: string }) => request<ApiAuthResponse>("/api/auth/google", {
     method: "POST",
     body: JSON.stringify(payload),
   }),

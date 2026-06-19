@@ -72,7 +72,7 @@ export function ProductDetailView({ productId, onAddToCart, onSelectProduct }: P
               <img 
                 src={gallery[activeSlide]} 
                 alt={product.name} 
-                className="w-full h-full object-contain p-4 transition-opacity duration-300 select-none"
+                className="w-full h-full object-cover transition-opacity duration-300 select-none"
                 referrerPolicy="no-referrer"
               />
               
@@ -101,7 +101,7 @@ export function ProductDetailView({ productId, onAddToCart, onSelectProduct }: P
                     activeSlide === i ? "ring-2 ring-[#775a19] opacity-100" : "opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img src={img} alt="Detail" className="w-full h-full object-contain p-1 bg-white" />
+                  <img src={img} alt="Detail" className="w-full h-full object-cover bg-white" />
                 </div>
               ))}
               <div className="aspect-square rounded-xl overflow-hidden silk-border flex items-center justify-center bg-[#efeded] text-[#444748] font-sans text-xs tracking-widest font-bold">
@@ -308,7 +308,7 @@ export function ProductDetailView({ productId, onAddToCart, onSelectProduct }: P
                   <img 
                     src={item.image} 
                     alt={item.name} 
-                    className="w-full h-full object-contain p-3 transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     referrerPolicy="no-referrer"
                   />
                 </div>

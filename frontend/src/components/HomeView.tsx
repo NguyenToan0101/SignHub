@@ -170,7 +170,7 @@ export function HomeView({ onExplore, onSelectProduct, onSelectJournal }: HomeVi
             >
               <div className="aspect-[3/4] overflow-hidden bg-white relative">
                 <img 
-                  className="w-full h-full object-contain p-3 transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   src={product.image}
                   alt={product.name}
                   referrerPolicy="no-referrer"

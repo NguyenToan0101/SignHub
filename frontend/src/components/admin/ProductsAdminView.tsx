@@ -345,7 +345,7 @@ export function ProductsAdminView({
                             src={p.image} 
                             referrerPolicy="no-referrer" 
                             alt={p.name} 
-                            className="w-full h-full object-contain bg-white p-1" 
+                            className="w-full h-full object-cover bg-white" 
                             onError={(e) => {
                               (e.target as any).src = "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=120";
                             }}

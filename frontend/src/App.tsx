@@ -13,7 +13,7 @@ import { EditorialView } from "./components/EditorialView";
 import { OurStoryView } from "./components/OurStoryView";
 import { CartSidebar } from "./components/CartSidebar";
 import { PRODUCTS, Product } from "./data";
-import { api, ApiCart } from "./api";
+import { api, ApiAuthResponse, ApiCart } from "./api";
 import { CheckCircle, Sparkles, X } from "lucide-react";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 
@@ -184,7 +184,7 @@ export default function App() {
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  const handleCustomerAuth = (nextCustomer: { name: string; email: string }) => {
+  const handleCustomerAuth = (nextCustomer: { name: string; email: string; token?: string }) => {
     localStorage.setItem("signhub_customer", JSON.stringify(nextCustomer));
     setCustomer(nextCustomer);
     setIsCustomerAuthOpen(false);
@@ -194,6 +194,15 @@ export default function App() {
       setPendingCartAction(null);
       setTimeout(() => handleAddToCart(action.product, action.quantity, action.finish, action.size), 0);
     }
+  };
+
+  const handleAdminAuth = (auth: ApiAuthResponse) => {
+    localStorage.setItem("signhub_admin_token", auth.token);
+    localStorage.setItem("signhub_admin_profile", JSON.stringify(auth));
+    setIsCustomerAuthOpen(false);
+    setPendingCartAction(null);
+    showToast("Dang nhap quan tri thanh cong.", "success");
+    setActivePage("admin");
   };
 
   // Render correct active page container view
@@ -318,6 +327,7 @@ export default function App() {
           setPendingCartAction(null);
         }}
         onAuthenticated={handleCustomerAuth}
+        onAdminAuthenticated={handleAdminAuth}
       />
 
       {/* 6. Mobile specific bottom overlay bar navigation */}
@@ -345,38 +355,45 @@ function CustomerAuthModal({
   isOpen,
   onClose,
   onAuthenticated,
+  onAdminAuthenticated,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onAuthenticated: (customer: { name: string; email: string }) => void;
+  onAuthenticated: (customer: { name: string; email: string; token?: string }) => void;
+  onAdminAuthenticated: (auth: ApiAuthResponse) => void;
 }) {
   const [mode, setMode] = React.useState<"login" | "register">("login");
-  const [form, setForm] = React.useState({ name: "", email: "", password: "" });
+  const [form, setForm] = React.useState({ name: "", email: "", password: "", confirmPassword: "" });
   const [error, setError] = React.useState("");
   const googleButtonRef = React.useRef<HTMLDivElement | null>(null);
-  const googleClientId = "374766354547-9pi96q0lpqvqlfg4qscbee3qpkms8r0a.apps.googleusercontent.com";
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
   React.useEffect(() => {
     if (!isOpen) return;
+    if (!googleClientId) {
+      if (googleButtonRef.current) googleButtonRef.current.innerHTML = "";
+      return;
+    }
     const initializeGoogle = () => {
       const google = (window as any).google;
       if (!google?.accounts?.id || !googleButtonRef.current) return;
       googleButtonRef.current.innerHTML = "";
       google.accounts.id.initialize({
         client_id: googleClientId,
-        callback: (response: { credential?: string }) => {
+        callback: async (response: { credential?: string }) => {
           if (!response.credential) {
             setError("Không nhận được thông tin đăng nhập Google.");
             return;
           }
           try {
-            const payload = JSON.parse(atob(response.credential.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+            const auth = await api.customerGoogleLogin({ credential: response.credential });
             onAuthenticated({
-              name: payload.name || payload.email?.split("@")[0] || "Google User",
-              email: payload.email,
+              name: auth.fullName || auth.email.split("@")[0],
+              email: auth.email,
+              token: auth.token,
             });
-          } catch {
-            setError("Không đọc được thông tin tài khoản Google.");
+          } catch (error) {
+            setError(error instanceof Error ? error.message : "Không đăng nhập được bằng Google.");
           }
         },
       });
@@ -404,21 +421,47 @@ function CustomerAuthModal({
     script.onload = initializeGoogle;
     script.onerror = () => setError("Không tải được Google Login. Kiểm tra cấu hình domain OAuth trong Google Cloud.");
     document.head.appendChild(script);
-  }, [isOpen, onAuthenticated]);
+  }, [googleClientId, isOpen, onAuthenticated]);
 
   if (!isOpen) return null;
 
-  const submit = (event: React.FormEvent) => {
+  const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
     if (!form.email || !form.password || (mode === "register" && !form.name)) {
       setError("Vui lòng nhập đầy đủ thông tin.");
       return;
     }
-    onAuthenticated({
-      name: form.name || form.email.split("@")[0],
-      email: form.email,
-    });
+    try {
+      if (mode === "register" && form.password !== form.confirmPassword) {
+        setError("Mat khau xac nhan khong trung khop.");
+        return;
+      }
+      const payload = { email: form.email.trim(), password: form.password };
+      const auth: ApiAuthResponse = mode === "register"
+        ? await api.customerRegister({
+            fullName: form.name.trim(),
+            email: payload.email,
+            password: payload.password,
+            confirmPassword: form.confirmPassword,
+          })
+        : await api.customerLogin(payload).catch(async (customerError) => {
+            const adminAuth = await api.adminLogin(payload);
+            if (adminAuth.role !== "ADMIN") throw customerError;
+            return adminAuth;
+          });
+      if (auth.role === "ADMIN") {
+        onAdminAuthenticated(auth);
+        return;
+      }
+      onAuthenticated({
+        name: auth.fullName || auth.email.split("@")[0],
+        email: auth.email,
+        token: auth.token,
+      });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Đăng nhập thất bại.");
+    }
   };
 
   return (
@@ -443,11 +486,31 @@ function CustomerAuthModal({
         )}
         <input type="email" value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} className="admin-input text-sm" placeholder="Email" />
         <input type="password" value={form.password} onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))} className="admin-input text-sm" placeholder="Mật khẩu" />
+        {mode === "register" && (
+          <input type="password" value={form.confirmPassword} onChange={(e) => setForm((p) => ({ ...p, confirmPassword: e.target.value }))} className="admin-input text-sm" placeholder="Nhap lai mat khau" />
+        )}
         {error && <p className="text-xs text-red-700 bg-red-50 border border-red-100 rounded-xl p-3">{error}</p>}
         <button type="submit" className="w-full py-3.5 bg-[#1b1c1c] text-white rounded-full text-xs font-bold tracking-widest uppercase hover:bg-[#775a19]">
           Tiếp tục
         </button>
-        <div className="flex min-h-[44px] justify-center" ref={googleButtonRef} />
+        <div className="space-y-2">
+          {googleClientId ? (
+            <div className="flex min-h-[44px] justify-center" ref={googleButtonRef} />
+          ) : (
+            <>
+              <button
+                type="button"
+                disabled
+                className="w-full py-3 border border-[#c4c7c7] rounded-full text-xs font-bold tracking-widest uppercase text-[#444748] bg-[#fbf9f9]"
+              >
+                Dang nhap voi Google
+              </button>
+              <p className="text-[11px] leading-relaxed text-[#444748]">
+                Them VITE_GOOGLE_CLIENT_ID vao frontend/.env de bat Google Login.
+              </p>
+            </>
+          )}
+        </div>
       </form>
     </div>
   );

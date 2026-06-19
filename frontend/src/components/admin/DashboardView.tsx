@@ -250,7 +250,7 @@ export function DashboardView({
 
           <div className="flex justify-between items-center mt-4 pt-4 border-t border-[#c4c7c7]/10">
             <span className="text-[10px] text-[#444748] font-sans">
-              Dữ liệu được tính trực tiếp từ đơn hàng trong database.
+              Dữ liệu được tính trực tiếp từ đơn hàng .
             </span>
             <button 
               onClick={() => onNavigateToTab("analytics")}
@@ -277,7 +277,7 @@ export function DashboardView({
                   <div key={p.id} className="flex gap-3 bg-red-50/50 border border-red-100 p-3 rounded-xl items-center justify-between">
                     <div className="flex gap-3.5 items-center min-w-0">
                       <div className="w-10 h-12 bg-[#efeded] rounded overflow-hidden flex-shrink-0 border border-[#c4c7c7]/10">
-                        <img src={p.image} referrerPolicy="no-referrer" className="w-full h-full object-contain bg-white p-1" alt={p.name} />
+                        <img src={p.image} referrerPolicy="no-referrer" className="w-full h-full object-cover bg-white" alt={p.name} />
                       </div>
                       <div className="min-w-0">
                         <h5 className="text-[11px] font-bold text-[#1b1c1c] truncate">{p.name}</h5>
@@ -389,7 +389,7 @@ export function DashboardView({
                     0{index + 1}
                   </span>
                   <div className="w-12 h-14 bg-[#efeded] rounded-lg overflow-hidden border border-[#c4c7c7]/10 flex-shrink-0">
-                    <img src={bs.image} referrerPolicy="no-referrer" alt={bs.name} className="w-full h-full object-contain bg-white p-1" />
+                    <img src={bs.image} referrerPolicy="no-referrer" alt={bs.name} className="w-full h-full object-cover bg-white" />
                   </div>
                   <div className="min-w-0 flex-grow">
                     <h5 className="text-[11px] font-bold text-[#1b1c1c] truncate">{bs.name}</h5>

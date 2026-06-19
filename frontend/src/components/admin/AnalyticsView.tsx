@@ -145,7 +145,7 @@ export function AnalyticsView({ products, orders }: AnalyticsViewProps) {
           </div>
 
           <p className="text-[10px] text-[#444748] font-medium leading-relaxed mt-6 italic pt-4 border-t border-[#c4c7c7]/10">
-            * Dữ liệu được tính trực tiếp từ sản phẩm và đơn hàng trong database.
+            * Dữ liệu được tính trực tiếp từ sản phẩm và đơn hàng.
           </p>
         </div>
 
