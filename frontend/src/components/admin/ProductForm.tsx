@@ -188,9 +188,9 @@ export function ProductForm({ isOpen, onClose, product, onSave }: ProductFormPro
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Field label="Danh mục *">
-                <select name="category" value={formData.category || "decor"} onChange={handleChange} className="admin-input cursor-pointer">
-                  <option value="decor">Trang trí</option>
+                <select name="category" value={formData.category || "tables"} onChange={handleChange} className="admin-input cursor-pointer">
                   <option value="tables">Biển số nhà</option>
+                  <option value="company">Biển số công ty</option>       
                   <option value="lighting">Biển hiệu đèn</option>
                   <option value="seating">Khác</option>
                 </select>

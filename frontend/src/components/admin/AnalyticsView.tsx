@@ -113,7 +113,7 @@ export function AnalyticsView({ products, orders }: AnalyticsViewProps) {
         <div className="bg-white rounded-2xl p-6 border border-[#c4c7c7]/20 shadow-sm flex flex-col justify-between">
           <div>
             <span className="text-[10px] text-[#775a19] font-bold tracking-widest uppercase block mb-1">
-              CATEGORY AUDIT
+              KIỂM TRA DANH MỤC
             </span>
             <h4 className="font-display text-lg font-bold text-[#1b1c1c] mb-6">
               Hiệu suất danh mục và tỷ trọng doanh thu
@@ -151,7 +151,7 @@ export function AnalyticsView({ products, orders }: AnalyticsViewProps) {
 
         <div className="bg-white rounded-2xl p-6 border border-[#c4c7c7]/20 shadow-sm">
           <span className="text-[10px] text-[#775a19] font-bold tracking-widest uppercase block mb-1">
-            CUSTOMER AREAS
+            KHU VỰC KHÁCH HÀNG
           </span>
           <h4 className="font-display text-lg font-bold text-[#1b1c1c] mb-6">
             Phân bổ khu vực khách hàng

@@ -8,7 +8,7 @@ import {
   TrendingUp, ShoppingCart, Inbox, Users, AlertCircle, ArrowRight, ArrowUpRight, ShieldCheck 
 } from "lucide-react";
 import { AdminProduct, AdminOrder, AdminCustomer } from "./mockAdminData";
-
+import { formatVnd } from "../../format";
 interface DashboardViewProps {
   products: AdminProduct[];
   orders: AdminOrder[];
@@ -83,13 +83,13 @@ export function DashboardView({
       <div className="flex flex-col md:flex-row md:justify-between md:items-baseline border-b border-[#c4c7c7]/30 pb-6">
         <div>
           <span className="text-[10px] tracking-widest font-bold text-[#775a19] uppercase block mb-1">
-            ESTABLISHED CIRCLES MMVIII
+            Tổng quan
           </span>
           <h1 className="font-display text-4xl font-bold text-[#1b1c1c] tracking-tight">
-            The Curator's Console
+            Bàn điều khiển của người phụ trách
           </h1>
           <p className="font-sans text-xs text-[#444748] mt-1.5 leading-relaxed max-w-xl">
-            Fine-tuning spatial harmony, client requisitions, and artisanal inventory. Real-time Ho Chi Minh Workshop logs.
+            Điều chỉnh tối ưu sự hài hòa không gian, yêu cầu của khách hàng và hàng tồn kho thủ công. Nhật ký hoạt động xưởng tại Thành phố Đà Nẵng theo thời gian thực.
           </p>
         </div>
         <div className="mt-4 md:mt-0 font-mono text-[10px] text-[#444748] bg-white border border-[#c4c7c7]/30 rounded-xl px-4 py-2 flex items-center gap-2">
@@ -105,16 +105,16 @@ export function DashboardView({
         <div className="bg-white rounded-2xl p-6 border border-[#c4c7c7]/20 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 relative overflow-hidden group hover:border-[#775a19]/40 transition-colors">
           <div className="flex justify-between items-start">
             <span className="text-[10px] tracking-widest font-bold uppercase text-[#444748] font-sans">
-              TOTAL REVENUE (USD)
+              Tổng doanh thu (VND)
             </span>
             <TrendingUp size={16} className="text-[#775a19]" />
           </div>
           <div>
             <h3 className="font-display text-3xl font-bold text-[#1b1c1c] tracking-tight">
-              ${totalRevenue.toLocaleString("en-US")}.00
+               {formatVnd(totalRevenue)} 
             </h3>
             <span className="text-[9px] text-[#775a19] font-bold tracking-wider uppercase block mt-1.5">
-              ▲ 18.4% VERSUS PREVIOUS PERIOD
+              ▲ 18.4% SO VỚI KỲ TRƯỚC
             </span>
           </div>
           <div className="absolute top-0 right-0 w-24 h-24 bg-[#775a19]/5 rounded-bl-[100%] translate-x-8 -translate-y-8 duration-500 group-hover:scale-110" />
@@ -124,7 +124,7 @@ export function DashboardView({
         <div className="bg-white rounded-2xl p-6 border border-[#c4c7c7]/20 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 relative overflow-hidden group hover:border-[#775a19]/40 transition-colors">
           <div className="flex justify-between items-start">
             <span className="text-[10px] tracking-widest font-bold uppercase text-[#444748] font-sans">
-              ACTIVE TRANSACTIONS
+              GIAO DỊCH ĐANG HOẠT ĐỘNG
             </span>
             <ShoppingCart size={16} className="text-[#775a19]" />
           </div>
@@ -133,7 +133,7 @@ export function DashboardView({
               {activeOrders} đang chờ
             </h3>
             <span className="text-[9px] text-[#444748] font-bold tracking-wider uppercase block mt-1.5">
-              {orders.length} TOTAL INVOICES FILED
+              {orders.length} TỔNG SỐ HÓA ĐƠN ĐÃ NỘP
             </span>
           </div>
           <div className="absolute top-0 right-0 w-24 h-24 bg-[#775a19]/5 rounded-bl-[100%] translate-x-8 -translate-y-8 duration-500 group-hover:scale-110" />
@@ -143,7 +143,7 @@ export function DashboardView({
         <div className="bg-white rounded-2xl p-6 border border-[#c4c7c7]/20 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 relative overflow-hidden group hover:border-[#775a19]/40 transition-colors">
           <div className="flex justify-between items-start">
             <span className="text-[10px] tracking-widest font-bold uppercase text-[#444748] font-sans">
-              CURATED ART ARCHIVES
+              SẢN PHẨM ĐÃ BÁN
             </span>
             <Inbox size={16} className="text-[#775a19]" />
           </div>
@@ -152,7 +152,7 @@ export function DashboardView({
               {products.length} sản phẩm
             </h3>
             <span className="text-[9px] text-[#775a19] font-bold tracking-wider uppercase block mt-1.5">
-              {outOfStockCount > 0 ? `${outOfStockCount} PIECES OUT OF STOCK` : "ALL ARCHIVES FULLY STOCKED"}
+              {outOfStockCount > 0 ? `${outOfStockCount} MỘT SỐ SẢN PHẨM HẾT HÀNG` : "TẤT CẢ KHO LƯU TRỮ ĐỀU ĐẦY ĐỦ"}
             </span>
           </div>
           <div className="absolute top-0 right-0 w-24 h-24 bg-[#775a19]/5 rounded-bl-[100%] translate-x-8 -translate-y-8 duration-500 group-hover:scale-110" />
@@ -162,16 +162,16 @@ export function DashboardView({
         <div className="bg-white rounded-2xl p-6 border border-[#c4c7c7]/20 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col justify-between h-36 relative overflow-hidden group hover:border-[#775a19]/40 transition-colors">
           <div className="flex justify-between items-start">
             <span className="text-[10px] tracking-widest font-bold uppercase text-[#444748] font-sans">
-              REGISTERED CONVENTIONS
+             NGƯỜI DÙNG ĐĂNG KÍ
             </span>
             <Users size={16} className="text-[#775a19]" />
           </div>
           <div>
             <h3 className="font-display text-3xl font-bold text-[#1b1c1c] tracking-tight">
-              {customers.length} VIP Litigants
+              {customers.length} người
             </h3>
             <span className="text-[9px] text-[#444748] font-bold tracking-wider uppercase block mt-1.5">
-              SAIGON, HANOI, & INTER-ASIA
+              VIET NAM
             </span>
           </div>
           <div className="absolute top-0 right-0 w-24 h-24 bg-[#775a19]/5 rounded-bl-[100%] translate-x-8 -translate-y-8 duration-500 group-hover:scale-110" />
@@ -187,7 +187,7 @@ export function DashboardView({
           <div className="flex justify-between items-baseline mb-4">
             <div>
               <span className="text-[9px] text-[#775a19] font-bold tracking-widest uppercase block">
-                ANNUAL FISCAL TRACE
+                BÁO CÁO TÀI CHÍNH HÀNG THÁNG
               </span>
               <h4 className="font-display text-lg text-[#1b1c1c] font-semibold mt-0.5">
                 Doanh thu theo tháng
@@ -256,7 +256,7 @@ export function DashboardView({
               onClick={() => onNavigateToTab("analytics")}
               className="text-[#775a19] text-[10px] font-bold tracking-wider uppercase flex items-center gap-1 hover:opacity-75 transition-opacity"
             >
-              ANALYTICS LEDGER <ArrowRight size={12} />
+              THỐNG KÊ CỤ THỂ <ArrowRight size={12} />
             </button>
           </div>
         </div>
@@ -265,7 +265,7 @@ export function DashboardView({
         <div className="bg-white rounded-2xl p-6 border border-[#c4c7c7]/20 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col justify-between">
           <div>
             <span className="text-[9px] text-red-700 font-bold tracking-widest uppercase block">
-              CHRONOLOGY CRISIS
+              CẢNH BÁO
             </span>
             <h4 className="font-display text-lg text-[#1b1c1c] font-semibold mt-0.5">
               Cảnh báo sắp hết hàng
@@ -294,7 +294,7 @@ export function DashboardView({
               ) : (
                 <div className="py-10 text-center flex flex-col items-center justify-center text-[#444748] gap-2 bg-[#fbf9f9] border border-dashed border-[#c4c7c7]/40 rounded-xl">
                   <ShieldCheck className="text-[#c4c7c7] w-10 h-10" />
-                  <p className="text-xs font-semibold italic">Safeguard secure. All products are in stable stock.</p>
+                  <p className="text-xs font-semibold italic">Đảm bảo an toàn. Tất cả sản phẩm đều có sẵn trong kho.</p>
                 </div>
               )}
             </div>
@@ -304,7 +304,7 @@ export function DashboardView({
             onClick={() => onNavigateToTab("products")}
             className="w-full mt-4 text-center py-2.5 border border-[#c4c7c7]/60 hover:border-[#1b1c1c] text-[#444748] hover:text-[#1b1c1c] transition-colors rounded-xl font-sans text-[10px] font-bold tracking-wider uppercase block"
           >
-            MANAGE STOCK ARCHIVE
+            QUẢN LÍ SẢN PHẨM
           </button>
         </div>
 
@@ -318,7 +318,7 @@ export function DashboardView({
           <div className="flex justify-between items-baseline mb-5">
             <div>
               <span className="text-[9px] text-[#775a19] font-bold tracking-widest uppercase block">
-                ACTIVE QUEUE
+                ĐƠN HÀNG
               </span>
               <h4 className="font-display text-lg text-[#1b1c1c] font-semibold mt-0.5">
                 Đơn hàng gần đây
@@ -328,7 +328,7 @@ export function DashboardView({
               onClick={() => onNavigateToTab("orders")}
               className="text-[#775a19] text-[10px] font-bold tracking-wider uppercase hover:opacity-75"
             >
-              ALL ORDERS
+              TẤT CẢ ĐƠN HÀNG
             </button>
           </div>
 
@@ -340,7 +340,7 @@ export function DashboardView({
                   <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Khách hàng</th>
                   <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Ngày</th>
                   <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Cost</th>
-                  <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Delivery</th>
+                  <th className="text-[9px] font-bold tracking-wider uppercase text-[#444748] py-2">Vận chuyển</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#c4c7c7]/10 text-xs">
@@ -353,7 +353,7 @@ export function DashboardView({
                     <td className="py-3 font-mono font-bold text-[#1b1c1c]">#{ord.invoiceNo}</td>
                     <td className="py-3 font-semibold text-[#1b1c1c]">{ord.customerName}</td>
                     <td className="py-3 text-[#444748] font-medium">{ord.date}</td>
-                    <td className="py-3 font-bold text-[#775a19]">${ord.totalPrice.toLocaleString()}.00</td>
+                    <td className="py-3 font-bold text-[#775a19]">{formatVnd(ord.totalPrice)}</td>
                     <td className="py-3">
                       <span className={`inline-block px-2.5 py-0.5 text-[9px] font-bold rounded-full ${
                         ord.deliveryStatus === "Delivered" 
@@ -376,7 +376,7 @@ export function DashboardView({
         <div className="bg-white rounded-2xl p-6 border border-[#c4c7c7]/20 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
           <div>
             <span className="text-[9px] text-[#775a19] font-bold tracking-widest uppercase block">
-              BOUTIQUE FAVORITES
+              Sản phẩm 
             </span>
             <h4 className="font-display text-lg text-[#1b1c1c] font-semibold mt-0.5">
               Sản phẩm bán chạy

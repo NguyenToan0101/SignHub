@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { api, ApiOrder, ApiProduct, mapApiProduct } from "../../api";
+import { api, ApiAuthResponse, ApiCustomerAccount, ApiOrder, ApiProduct, mapApiProduct } from "../../api";
 import { AdminLayout } from "./AdminLayout";
 import { DashboardView } from "./DashboardView";
 import { AnalyticsView } from "./AnalyticsView";
@@ -15,8 +15,9 @@ import { ProfileSettingsView } from "./ProfileSettingsView";
 import { ConfirmModal } from "./ConfirmModal";
 import { ProductForm } from "./ProductForm";
 import { 
-  INITIAL_ADMIN_PRODUCTS, INITIAL_ORDERS, INITIAL_CUSTOMERS, 
-  AdminProduct, AdminOrder, AdminCustomer 
+  ADMIN_PROFILE_DEFAULT,
+  INITIAL_ADMIN_PRODUCTS, INITIAL_ORDERS, INITIAL_CUSTOMERS,
+  AdminProduct, AdminOrder, AdminCustomer
 } from "./mockAdminData";
 import { CheckCircle, Sparkles, X } from "lucide-react";
 
@@ -34,6 +35,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
   const [loginForm, setLoginForm] = React.useState({ email: "admin@gmail.com", password: "123" });
   const [loginError, setLoginError] = React.useState("");
   const [lowStockThreshold, setLowStockThreshold] = React.useState(() => Number(localStorage.getItem("signhub_low_stock_threshold") || "5"));
+  const [adminProfile, setAdminProfile] = React.useState(() => getStoredAdminProfile());
 
   // Layout navigation
   const [activeTab, setActiveTab] = React.useState<string>("dashboard");
@@ -51,16 +53,16 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
   const loadAdminData = React.useCallback(async () => {
     setIsLoadingData(true);
     try {
-      const [productsPage, ordersPage] = await Promise.all([
+      const [productsPage, ordersPage, customerAccounts] = await Promise.all([
         api.getAdminProducts(),
         api.getAdminOrders(),
-        api.getAdminDashboard().catch(() => null),
+        api.getAdminCustomers().catch(() => [] as ApiCustomerAccount[]),
       ]);
       const mappedProducts = productsPage.content.map(mapAdminProduct);
       const mappedOrders = ordersPage.content.map(mapAdminOrder);
       setProducts(mappedProducts);
       setOrders(mappedOrders);
-      setCustomers(buildCustomersFromOrders(mappedOrders));
+      setCustomers(buildCustomers(customerAccounts, mappedOrders));
     } catch (error) {
       setProducts([]);
       setOrders([]);
@@ -87,6 +89,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
       }
       localStorage.setItem("signhub_admin_token", auth.token);
       localStorage.setItem("signhub_admin_profile", JSON.stringify(auth));
+      setAdminProfile(profileFromAuth(auth));
       setIsAuthenticated(true);
       showLocalToast("Đăng nhập quản trị thành công", "success");
     } catch (error) {
@@ -283,6 +286,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
       <AdminLayout 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
+        adminProfile={adminProfile}
         onLogout={() => {
           localStorage.removeItem("signhub_admin_token");
           localStorage.removeItem("signhub_admin_profile");
@@ -353,6 +357,8 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
 
         {activeTab === "profile" && (
           <ProfileSettingsView 
+            adminProfile={adminProfile}
+            onProfileUpdated={(auth) => setAdminProfile(profileFromAuth(auth))}
             onShowToast={showLocalToast}
             lowStockThreshold={lowStockThreshold}
             onLowStockThresholdChange={setLowStockThreshold}
@@ -466,6 +472,71 @@ function mapDeliveryStatusToApi(status: AdminOrder["deliveryStatus"]): ApiOrder[
   if (status === "Shipped") return "SHIPPING";
   if (status === "Cancelled") return "CANCELLED";
   return "CONFIRMED";
+}
+
+function profileFromAuth(auth: ApiAuthResponse) {
+  return {
+    name: auth.fullName || auth.email,
+    email: auth.email,
+    avatar: ADMIN_PROFILE_DEFAULT.avatar,
+    role: "Quản trị viên",
+  };
+}
+
+function getStoredAdminProfile() {
+  try {
+    const auth = JSON.parse(localStorage.getItem("signhub_admin_profile") || "null") as ApiAuthResponse | null;
+    if (auth?.email) return profileFromAuth(auth);
+  } catch {}
+  return {
+    name: ADMIN_PROFILE_DEFAULT.name,
+    email: ADMIN_PROFILE_DEFAULT.email,
+    avatar: ADMIN_PROFILE_DEFAULT.avatar,
+    role: ADMIN_PROFILE_DEFAULT.role,
+  };
+}
+
+function buildCustomers(customerAccounts: ApiCustomerAccount[], orders: AdminOrder[]): AdminCustomer[] {
+  const byKey = new Map<string, AdminCustomer>();
+
+  customerAccounts.forEach((account, index) => {
+    const name = account.fullName || account.email.split("@")[0];
+    const key = customerKey(account.email, account.phone, name);
+    byKey.set(key, {
+      id: account.id || `CUST-ACCOUNT-${index + 1}`,
+      name,
+      email: account.email,
+      phone: account.phone || "",
+      address: "",
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=775a19&color=fff`,
+      joinedDate: account.createdAt ? account.createdAt.slice(0, 10) : "",
+      totalSpent: 0,
+      status: account.enabled ? "Active" : "Locked",
+      orderIds: [],
+    });
+  });
+
+  buildCustomersFromOrders(orders).forEach((customer) => {
+    const key = customerKey(customer.email, customer.phone, customer.name);
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, customer);
+      return;
+    }
+    existing.phone = existing.phone || customer.phone;
+    existing.address = existing.address || customer.address;
+    existing.totalSpent += customer.totalSpent;
+    existing.orderIds = Array.from(new Set([...existing.orderIds, ...customer.orderIds]));
+    if (!existing.joinedDate || (customer.joinedDate && customer.joinedDate < existing.joinedDate)) {
+      existing.joinedDate = customer.joinedDate;
+    }
+  });
+
+  return Array.from(byKey.values()).sort((a, b) => (b.joinedDate || "").localeCompare(a.joinedDate || ""));
+}
+
+function customerKey(email: string, phone: string, name: string) {
+  return (email || phone || name).trim().toLowerCase();
 }
 
 function buildCustomersFromOrders(orders: AdminOrder[]): AdminCustomer[] {

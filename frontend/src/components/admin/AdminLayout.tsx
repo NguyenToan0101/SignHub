@@ -8,16 +8,20 @@ import {
   Menu, X, Search, Bell, ChevronDown, LayoutDashboard, 
   BarChart3, Inbox, ShoppingCart, Users, User, Settings, LogOut, Sparkles 
 } from "lucide-react";
-import { ADMIN_PROFILE_DEFAULT } from "./mockAdminData";
-
 interface AdminLayoutProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  adminProfile: {
+    name: string;
+    email: string;
+    avatar: string;
+    role: string;
+  };
   onLogout: () => void;
   children: React.ReactNode;
 }
 
-export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: AdminLayoutProps) {
+export function AdminLayout({ activeTab, setActiveTab, adminProfile, onLogout, children }: AdminLayoutProps) {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = React.useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = React.useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = React.useState(false);
@@ -84,14 +88,14 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
         <div className="border-t border-[#c4c7c7]/20 pt-6 space-y-4">
           <div className="flex items-center gap-3 px-2">
             <div className="w-10 h-10 rounded-full overflow-hidden border border-[#c4c7c7]/40 bg-[#efeded]">
-              <img src={ADMIN_PROFILE_DEFAULT.avatar} alt="Admin avatar" className="w-full h-full object-cover" />
+              <img src={adminProfile.avatar} alt="Admin avatar" className="w-full h-full object-cover" />
             </div>
             <div className="truncate">
               <h4 className="text-xs font-bold text-[#1b1c1c] truncate">
-                {ADMIN_PROFILE_DEFAULT.name}
+                {adminProfile.name}
               </h4>
               <span className="text-[9px] font-medium tracking-wide text-[#444748] block truncate">
-                {ADMIN_PROFILE_DEFAULT.role}
+                {adminProfile.role}
               </span>
             </div>
           </div>
@@ -257,7 +261,7 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
                 className="flex items-center gap-2 pl-2 pr-1.5 py-1.5 rounded-full hover:bg-[#efeded]/40 transition-colors"
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden border border-[#c4c7c7]/30 bg-[#efeded]">
-                  <img src={ADMIN_PROFILE_DEFAULT.avatar} alt="Admin avatar" className="w-full h-full object-cover" />
+                  <img src={adminProfile.avatar} alt="Admin avatar" className="w-full h-full object-cover" />
                 </div>
                 <ChevronDown size={14} className="text-[#444748]" />
               </button>
@@ -272,10 +276,10 @@ export function AdminLayout({ activeTab, setActiveTab, onLogout, children }: Adm
                       QUẢN TRỊ VIÊN
                     </span>
                     <h5 className="text-xs font-bold text-[#1b1c1c] mt-0.5 truncate">
-                      {ADMIN_PROFILE_DEFAULT.name}
+                      {adminProfile.name}
                     </h5>
                     <p className="text-[10px] text-[#444748] truncate">
-                      {ADMIN_PROFILE_DEFAULT.email}
+                      {adminProfile.email}
                     </p>
                   </div>
                   <div className="flex flex-col gap-1">

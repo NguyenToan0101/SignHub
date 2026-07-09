@@ -86,7 +86,7 @@ export function OurStoryView() {
               LIÊN HỆ XƯỞNG
             </span>
             <h2 className="font-display text-3xl md:text-4xl text-[#1b1c1c] leading-tight">
-              Tư vấn mẫu và nhận đơn tại TP. Hồ Chí Minh
+              Tư vấn mẫu và nhận đơn tại TP. Đà Nẵng
             </h2>
             <p className="font-sans text-sm text-[#444748] leading-relaxed font-light">
               Bạn có thể gửi ảnh vị trí lắp đặt, số nhà hoặc logo công ty để SignHub tư vấn kích thước và chất liệu phù hợp.
@@ -97,7 +97,7 @@ export function OurStoryView() {
                 <MapPin className="text-[#775a19] mt-1 flex-shrink-0" size={16} />
                 <div>
                   <h4 className="font-bold text-xs uppercase tracking-wider">ĐỊA CHỈ</h4>
-                  <p className="text-xs text-[#444748] mt-1">TP. Hồ Chí Minh, Việt Nam</p>
+                  <p className="text-xs text-[#444748] mt-1">TP. Đà Nẵng, Việt Nam</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">

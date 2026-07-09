@@ -28,15 +28,15 @@ interface CheckoutViewProps {
 }
 
 export function CheckoutView({ cart, sessionId, onUpdateQuantity, onRemoveItem, onClearCart }: CheckoutViewProps) {
-  const [firstName, setFirstName] = React.useState("Lê");
-  const [lastName, setLastName] = React.useState("Nguyễn");
-  const [address, setAddress] = React.useState("123 Nguyễn Huệ");
-  const [city, setCity] = React.useState("TP. Hồ Chí Minh");
-  const [district, setDistrict] = React.useState("Quận 1");
-  const [ward, setWard] = React.useState("Phường Bến Nghé");
-  const [postalCode, setPostalCode] = React.useState("700000");
-  const [email, setEmail] = React.useState("khachhang@signhub.vn");
-  const [phone, setPhone] = React.useState("0900000000");
+  const [firstName, setFirstName] = React.useState();
+  const [lastName, setLastName] = React.useState();
+  const [address, setAddress] = React.useState();
+  const [city, setCity] = React.useState();
+  const [district, setDistrict] = React.useState();
+  const [ward, setWard] = React.useState();
+  const [postalCode, setPostalCode] = React.useState();
+  const [email, setEmail] = React.useState();
+  const [phone, setPhone] = React.useState();
 
   // Discount code mechanics
   const [discountCode, setDiscountCode] = React.useState("");
@@ -216,7 +216,7 @@ export function CheckoutView({ cart, sessionId, onUpdateQuantity, onRemoveItem, 
                       className="border border-[#c4c7c7] bg-white rounded-full px-5 py-3 text-sm focus:border-[#775a19] focus:ring-1 focus:ring-[#775a19] outline-none" 
                       value={firstName} 
                       onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Jane" 
+                      placeholder="Nhập tên..." 
                       type="text" 
                     />
                   </div>
@@ -228,7 +228,7 @@ export function CheckoutView({ cart, sessionId, onUpdateQuantity, onRemoveItem, 
                       className="border border-[#c4c7c7] bg-white rounded-full px-5 py-3 text-sm focus:border-[#775a19] focus:ring-1 focus:ring-[#775a19] outline-none" 
                       value={lastName} 
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Doe" 
+                      placeholder="Nhập họ..." 
                       type="text" 
                     />
                   </div>
@@ -242,7 +242,7 @@ export function CheckoutView({ cart, sessionId, onUpdateQuantity, onRemoveItem, 
                     className="border border-[#c4c7c7] bg-white rounded-full px-5 py-3 text-sm focus:border-[#775a19] focus:ring-1 focus:ring-[#775a19] outline-none" 
                     value={address} 
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="123 Serenity Way, Dist. 1" 
+                    placeholder="Số nhà , quận/huyện ,phường/xã ,tỉnh/thành phố" 
                     type="text" 
                   />
                 </div>
@@ -256,7 +256,7 @@ export function CheckoutView({ cart, sessionId, onUpdateQuantity, onRemoveItem, 
                       className="border border-[#c4c7c7] bg-white rounded-full px-5 py-3 text-sm focus:border-[#775a19] focus:ring-1 focus:ring-[#775a19] outline-none" 
                       value={city} 
                       onChange={(e) => setCity(e.target.value)}
-                      placeholder="TP. Hồ Chí Minh" 
+                      placeholder="TP. Đà Nẵng" 
                       type="text" 
                     />
                   </div>
@@ -268,7 +268,7 @@ export function CheckoutView({ cart, sessionId, onUpdateQuantity, onRemoveItem, 
                       className="border border-[#c4c7c7] bg-white rounded-full px-5 py-3 text-sm focus:border-[#775a19] focus:ring-1 focus:ring-[#775a19] outline-none"
                       value={district}
                       onChange={(e) => setDistrict(e.target.value)}
-                      placeholder="Quận 1"
+                      placeholder="Quận Hải Châu"
                       type="text"
                     />
                   </div>
@@ -280,7 +280,7 @@ export function CheckoutView({ cart, sessionId, onUpdateQuantity, onRemoveItem, 
                       className="border border-[#c4c7c7] bg-white rounded-full px-5 py-3 text-sm focus:border-[#775a19] focus:ring-1 focus:ring-[#775a19] outline-none" 
                       value={ward}
                       onChange={(e) => setWard(e.target.value)}
-                      placeholder="Phường Bến Nghé" 
+                      placeholder="Phường Hoà Cường Bắc" 
                       type="text" 
                     />
                   </div>
@@ -294,7 +294,7 @@ export function CheckoutView({ cart, sessionId, onUpdateQuantity, onRemoveItem, 
                     className="border border-[#c4c7c7] bg-white rounded-full px-5 py-3 text-sm focus:border-[#775a19] focus:ring-1 focus:ring-[#775a19] outline-none" 
                     value={email} 
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="architect@lartdecor.vn" 
+                    placeholder="example@gmail.com" 
                     type="email" 
                   />
                 </div>
@@ -364,7 +364,7 @@ export function CheckoutView({ cart, sessionId, onUpdateQuantity, onRemoveItem, 
                 <div className="flex gap-2">
                   <input 
                     className="border border-[#c4c7c7] bg-white rounded-l-full px-4 py-2 text-xs flex-1 outline-none font-sans tracking-widest uppercase font-semibold"
-                    placeholder="Ví dụ: PMV10"
+                    placeholder=""
                     value={discountCode}
                     onChange={(e) => setDiscountCode(e.target.value)}
                     type="text" 

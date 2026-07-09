@@ -13,10 +13,12 @@ interface NavbarProps {
   openCart: () => void;
   openLogin: () => void;
   customer?: { name: string; email: string } | null;
+  onLogout: () => void;
 }
 
-export function Navbar({ activePage, setActivePage, cartCount, openCart, openLogin, customer }: NavbarProps) {
+export function Navbar({ activePage, setActivePage, cartCount, openCart, openLogin, customer, onLogout }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
     // Scroll to top on page change
@@ -78,7 +80,7 @@ export function Navbar({ activePage, setActivePage, cartCount, openCart, openLog
           </div>
 
           {/* Trailing Icons */}
-          <div className="flex items-center gap-4">
+          <div className="relative flex items-center gap-4">
             <button 
               onClick={() => setActivePage("collections")}
               className="text-[#1b1c1c] p-2 hover:opacity-70 transition-opacity"
@@ -99,7 +101,7 @@ export function Navbar({ activePage, setActivePage, cartCount, openCart, openLog
               )}
             </button>
             <button 
-              onClick={openLogin}
+              onClick={() => customer ? setIsAccountMenuOpen((open) => !open) : openLogin()}
               className="p-1.5 hover:text-brand-gold transition-colors flex items-center gap-1.5 text-[#1b1c1c]"
               title={customer ? customer.email : "Đăng nhập"}
               id="topbar-login-trigger"
@@ -109,6 +111,22 @@ export function Navbar({ activePage, setActivePage, cartCount, openCart, openLog
                 {customer ? customer.name : "Đăng nhập"}
               </span>
             </button>
+            {customer && isAccountMenuOpen && (
+              <div className="absolute right-0 top-12 w-56 bg-white border border-[#c4c7c7]/40 rounded-lg shadow-xl p-3 text-left">
+                <p className="text-xs font-bold text-[#1b1c1c] truncate">{customer.name}</p>
+                <p className="text-[11px] text-[#444748] truncate mt-1">{customer.email}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAccountMenuOpen(false);
+                    onLogout();
+                  }}
+                  className="mt-3 w-full py-2 rounded-md bg-[#1b1c1c] text-white text-[10px] font-bold tracking-widest uppercase hover:bg-[#775a19]"
+                >
+                  Dang xuat
+                </button>
+              </div>
+            )}
           </div>
         </nav>
       </header>
@@ -181,9 +199,28 @@ export function Footer({ setActivePage }: FooterProps) {
       <div className="md:col-span-1 flex flex-col justify-between">
         <div>
           <h1 className="font-display text-2xl tracking-[0.2em] text-[#1b1c1c] mb-6">SIGNHUB</h1>
-          <p className="font-sans text-sm text-[#444748] leading-relaxed max-w-xs">
-            Thiết kế và gia công biển số nhà, biển công ty, bảng phòng ban theo yêu cầu với bản duyệt rõ ràng trước khi sản xuất.
-          </p>
+          <ul className="space-y-4 text-sm text-[#444748]">
+          <li>
+            <p className="hover:text-brand-gold transition-colors text-left  text-xs tracking-wider">
+              Địa chỉ: Liên chiểu, Đà Nẵng
+            </p>
+          </li>
+          <li>
+            <p className="hover:text-brand-gold transition-colors text-left  text-xs tracking-wider">
+              Email: email@gmail.com
+            </p>
+          </li>
+          <li>
+            <p className="hover:text-brand-gold transition-colors text-left  text-xs tracking-wider">
+              Điện thoại: 0818000000
+            </p>
+          </li>
+          <li>
+            <p className="hover:text-brand-gold transition-colors text-left  text-xs tracking-wider">
+              Công ty
+            </p>
+          </li>
+        </ul>
         </div>
         <p className="font-sans text-[10px] tracking-widest text-[#444748]/60 mt-12 hidden md:block">
           © 2026 SIGNHUB. THIẾT KẾ VÀ GIA CÔNG BIỂN SỐ.

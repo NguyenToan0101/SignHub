@@ -70,7 +70,7 @@ export function CustomersAdminView({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-[#c4c7c7]/30 pb-6">
         <div>
           <span className="text-[10px] tracking-widest font-bold text-[#775a19] uppercase block mb-1">
-            CLIENT CONVENTIONS
+            KHÁCH HÀNG
           </span>
           <h1 className="font-display text-3xl font-bold text-[#1b1c1c] tracking-tight">
             Danh sách khách hàng
@@ -82,7 +82,7 @@ export function CustomersAdminView({
           className="flex items-center gap-2 pl-3.5 pr-4 py-2 border border-[#c4c7c7]/60 hover:border-[#1b1c1c] text-[#444748] hover:text-[#1b1c1c] rounded-xl text-xs font-semibold tracking-wider uppercase transition-colors self-start sm:self-auto"
         >
           <Download size={13} />
-          EXCEL REGISTRY LOGS
+          EXCEL CUSTOMER
         </button>
       </div>
 
@@ -105,11 +105,11 @@ export function CustomersAdminView({
             <thead>
               <tr className="border-b border-[#c4c7c7]/20 bg-[#fbf9f9]/50">
                 <th className="py-4 pl-6 pr-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Mã khách hàng</th>
-                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Direct Details</th>
-                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Joined date</th>
-                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-right">Sum total spent</th>
-                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-center">Security state</th>
-                <th className="py-4 pr-6 pl-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-right">Showroom Action</th>
+                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Thông tin</th>
+                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748]">Ngày tham gia</th>
+                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-right">Tổng chi</th>
+                <th className="py-4 px-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-center">Trạng thái</th>
+                <th className="py-4 pr-6 pl-4 text-[9px] font-bold tracking-widest uppercase text-[#444748] text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#c4c7c7]/10 text-xs">
@@ -147,7 +147,7 @@ export function CustomersAdminView({
                     </td>
 
                     <td className="py-4 px-4 text-right font-display font-semibold text-[#775a19] text-sm">
-                      ${cust.totalSpent.toLocaleString()}.00
+                      {cust.totalSpent.toLocaleString()}.00 ₫
                     </td>
 
                     <td className="py-4 px-4 text-center">

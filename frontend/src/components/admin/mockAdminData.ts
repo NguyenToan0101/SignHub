@@ -359,6 +359,6 @@ export const ADMIN_PROFILE_DEFAULT = {
   name: "Madame Kim Oanh",
   email: "curator@lartdecor.vn",
   phone: "+84 901 888 999",
-  avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-  role: "Lead Artistic Director & Principal Curator"
+  avatar: "https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff&size=200",
+  role: "Giám đốc & Người phụ trách chính"
 };

@@ -5,16 +5,21 @@
 
 import React from "react";
 import { Key, User } from "lucide-react";
-import { api } from "../../api";
+import { api, ApiAuthResponse } from "../../api";
 import { ADMIN_PROFILE_DEFAULT } from "./mockAdminData";
 
 interface ProfileSettingsViewProps {
+  adminProfile: {
+    name: string;
+    email: string;
+  };
+  onProfileUpdated: (auth: ApiAuthResponse) => void;
   onShowToast: (message: string, type: "success" | "neutral") => void;
   lowStockThreshold: number;
   onLowStockThresholdChange: (value: number) => void;
 }
 
-export function ProfileSettingsView({ onShowToast, lowStockThreshold, onLowStockThresholdChange }: ProfileSettingsViewProps) {
+export function ProfileSettingsView({ adminProfile, onProfileUpdated, onShowToast, lowStockThreshold, onLowStockThresholdChange }: ProfileSettingsViewProps) {
   const savedProfile = React.useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem("signhub_admin_profile_settings") || "null");
@@ -23,10 +28,10 @@ export function ProfileSettingsView({ onShowToast, lowStockThreshold, onLowStock
     }
   }, []);
   const [profile, setProfile] = React.useState({
-    name: ADMIN_PROFILE_DEFAULT.name,
-    email: ADMIN_PROFILE_DEFAULT.email,
     phone: ADMIN_PROFILE_DEFAULT.phone,
     ...(savedProfile || {}),
+    name: adminProfile.name || savedProfile?.name || ADMIN_PROFILE_DEFAULT.name,
+    email: adminProfile.email || savedProfile?.email || ADMIN_PROFILE_DEFAULT.email,
     bio: "Quản trị viên chính của SignHub, phụ trách sản phẩm, đơn hàng và vận hành xưởng.",
   });
   const [passwords, setPasswords] = React.useState({ current: "", newPass: "", confirm: "" });
@@ -37,9 +42,12 @@ export function ProfileSettingsView({ onShowToast, lowStockThreshold, onLowStock
     e.preventDefault();
     try {
       const auth = await api.updateAdminProfile({ fullName: profile.name, email: profile.email, phone: profile.phone });
+      const nextProfile = { ...profile, name: auth.fullName || profile.name, email: auth.email };
       localStorage.setItem("signhub_admin_token", auth.token);
       localStorage.setItem("signhub_admin_profile", JSON.stringify(auth));
-      localStorage.setItem("signhub_admin_profile_settings", JSON.stringify(profile));
+      localStorage.setItem("signhub_admin_profile_settings", JSON.stringify(nextProfile));
+      setProfile(nextProfile);
+      onProfileUpdated(auth);
       onShowToast("Đã cập nhật thông tin hồ sơ", "success");
     } catch (error) {
       onShowToast(error instanceof Error ? `Chưa cập nhật được hồ sơ: ${error.message}` : "Chưa cập nhật được hồ sơ", "neutral");
@@ -120,7 +128,7 @@ export function ProfileSettingsView({ onShowToast, lowStockThreshold, onLowStock
               </Field>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label="Mật khẩu mới *">
-                  <input type="password" value={passwords.newPass} onChange={(e) => setPasswords((p) => ({ ...p, newPass: e.target.value }))} placeholder="Tối thiểu 8 ký tự" className="admin-input text-xs" />
+                  <input type="password" value={passwords.newPass} onChange={(e) => setPasswords((p) => ({ ...p, newPass: e.target.value }))} placeholder="Tối thiểu 6 ký tự" className="admin-input text-xs" />
                 </Field>
                 <Field label="Xác nhận mật khẩu mới *">
                   <input type="password" value={passwords.confirm} onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))} placeholder="Nhập lại mật khẩu" className="admin-input text-xs" />

@@ -8,7 +8,6 @@ import { PRODUCTS, JOURNAL_POSTS, TESTIMONIALS, Product } from "../data";
 import { api, mapApiBlog, mapApiProduct } from "../api";
 import { formatVnd } from "../format";
 import { ArrowRight, Quote } from "lucide-react";
-
 interface HomeViewProps {
   onExplore: () => void;
   onSelectProduct: (id: string) => void;
@@ -35,9 +34,8 @@ export function HomeView({ onExplore, onSelectProduct, onSelectJournal }: HomeVi
       <section className="relative h-screen min-h-[600px] w-full flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <img 
-            className="w-full h-full object-cover select-none filter brightness-90 animate-fade-in transition-transform duration-10000 hover:scale-105" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTQzXKF4808vTQwtHa7Y7EXh1Mh2U_hjY-J9vzb_nBnElQ9wuqd32hjtsxskWkEYK4dfpWgcBYl1YvaKUST--2jaf2rJjHT3k931XMh3l0_NsS2eoyEAnDHPebP6dPFa2YRBzOPRyOX1MqUG51mHVA1VOcuZQOEMrM3_28qtFo-cTRyJCrIK6RUCMQu4cN5o18pQwhNB64tjpMf1ZB-Sqt-JW85dBB-NJ8Ns9DBP31zBaUo_drb_ir-5f4zwgahXbh4t7kXsuUk4iq"
-            alt="Không gian trưng bày biển số cao cấp"
+            className="w-full h-full object-cover select-none filter brightness-90 animate-fade-in transition-transform duration-10000 " 
+src="/images/house-number-overview.jpg"            alt="Không gian trưng bày biển số cao cấp"
             referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-[#1b1c1c]/15" />
@@ -61,7 +59,7 @@ export function HomeView({ onExplore, onSelectProduct, onSelectJournal }: HomeVi
         </div>
 
         <div className="absolute bottom-12 left-6 md:left-20 max-w-xs hidden sm:block">
-          <p className="font-display text-sm italic text-white/80 line-clamp-3 leading-relaxed">
+          <p className="font-display text-sm italic text-black/150 line-clamp-3 leading-relaxed">
             Biển số nhà, biển công ty và bảng hiệu được thiết kế gọn, rõ, bền và đúng tinh thần không gian của bạn.
           </p>
         </div>
@@ -91,8 +89,7 @@ export function HomeView({ onExplore, onSelectProduct, onSelectJournal }: HomeVi
           <div className="md:col-span-7 relative group overflow-hidden rounded-[24px] silk-border cursor-pointer shadow-sm hover:shadow-lg transition-all duration-500 flex flex-col justify-end min-h-[300px]">
             <img 
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwC7iq-oIM3VKkP5N_8qX0qYZcGL77eFBfj0EOpJqieRDnbTBtQWdjZXhPa4x1rPyXFROp1I56GF-6bsKI_1Aj8iWl-Ga4ncbxfk6SQxj2R-EFUWVoXlh6unACZTO3AqZecNi5H8UtHifgteC9ehfO2shbHkkyjkVQIV7-hJ_Sbcf7496hJdDOnEbrJSKAh0WdCyZDqX6X4cL3LP8GzxYIHWYAPw0GlmGqxzxaIPcw5XFdR43mac4VbBdx219GJ62-1yKp1GiW6QNk"
-              alt="Biển số nhà thiết kế riêng"
+src="/images/house-number-1.jpg"               alt="Biển số nhà thiết kế riêng"
               referrerPolicy="no-referrer"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -114,8 +111,7 @@ export function HomeView({ onExplore, onSelectProduct, onSelectJournal }: HomeVi
             >
               <img 
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 filter brightness-90" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDp2lAtnh_yT27_8T6yJKxVko9-nD7AsFAEoArg2httHtT_w2zQuk65S88yK3fgT9AL_okjkEGtePjejrClgKPezmHi7ANeBK7DV8x4ySYi7fOeFT4ou70OJ8KObgBYD9nGzaF0sx41xsyqbDZZUOB4QP46HEsQTkTZ4UewrHf7w5FaWenmr-aqQdzpgVBfC04DbeNRbWyrjYqsw3KriZZYxviPWsFQXJcpnh7T4lk6_KJ6GC9kn3_hNZ937kx3GL6FNEXaxGkbICqW"
-                alt="Biển số nhà"
+src="/images/house-4.jpg"                  alt="Biển số nhà"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500" />
@@ -133,8 +129,7 @@ export function HomeView({ onExplore, onSelectProduct, onSelectJournal }: HomeVi
             >
               <img 
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 filter brightness-90" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFzbIGSODo5FwMj4pgR2xnHC7IUkexckGVUscG7lXSu3OV7hvjLRoZx4WTg1hzHEZPB6Rwmeliui-zIyN3Q_0-rzqBkP5QDGtL3An7UF7eepHFyloBsrsoF2NlLmMVm7tut1fuXxyO2zARFVsWANjxB_r28m5onuGhZlInpR6xTzqSlmQKvryIeShFoh9rfr1tWOufxFCEnNhN7UZtDDuSDd4r_Z-gJR3Z3LJj2ntaIby2tNYW-B4cKJB3enTttCrizm-pzoXLDT6v"
-                alt="Biển công ty"
+src="/images/house-5.jpg"                  alt="Biển công ty"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors duration-500" />
@@ -217,7 +212,7 @@ export function HomeView({ onExplore, onSelectProduct, onSelectJournal }: HomeVi
             </p>
             <div className="grid grid-cols-2 gap-8 border-t border-[#c4c7c7]/30 pt-12">
               <div>
-                <h4 className="font-display text-3xl md:text-4xl text-[#1b1c1c]">15+</h4>
+                <h4 className="font-display text-3xl md:text-4xl text-[#1b1c1c]">5+</h4>
                 <p className="font-sans text-[10px] tracking-widest text-[#444748] mt-2 font-bold uppercase">
                   NĂM KINH NGHIỆM
                 </p>
@@ -295,7 +290,7 @@ export function HomeView({ onExplore, onSelectProduct, onSelectJournal }: HomeVi
               <div className="overflow-hidden rounded-[24px] aspect-video border border-[#c4c7c7]/20 relative bg-[#efeded]">
                 <img 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                  src={post.image}
+                  src="/images/house-6.jpg"
                   alt={post.title}
                   referrerPolicy="no-referrer"
                 />

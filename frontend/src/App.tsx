@@ -13,9 +13,11 @@ import { EditorialView } from "./components/EditorialView";
 import { OurStoryView } from "./components/OurStoryView";
 import { CartSidebar } from "./components/CartSidebar";
 import { PRODUCTS, Product } from "./data";
-import { api, ApiAuthResponse, ApiCart } from "./api";
+import { API_BASE_URL, api, ApiAuthResponse, ApiCart } from "./api";
 import { CheckCircle, Sparkles, X } from "lucide-react";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
+
+type CustomerProfile = { name: string; email: string };
 
 export default function App() {
   const [activePage, setActivePage] = React.useState<string>("home");
@@ -31,7 +33,7 @@ export default function App() {
 
   const [cart, setCart] = React.useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = React.useState(false);
-  const [customer, setCustomer] = React.useState<{ name: string; email: string } | null>(() => {
+  const [customer, setCustomer] = React.useState<CustomerProfile | null>(() => {
     try {
       return JSON.parse(localStorage.getItem("signhub_customer") || "null");
     } catch {
@@ -184,10 +186,16 @@ export default function App() {
 
   const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  const handleCustomerAuth = (nextCustomer: { name: string; email: string; token?: string }) => {
+  const handleCustomerAuth = (auth: ApiAuthResponse) => {
+    const nextCustomer: CustomerProfile = {
+      name: auth.fullName || auth.email.split("@")[0],
+      email: auth.email,
+    };
+    sessionStorage.setItem("signhub_customer_token", auth.token);
     localStorage.setItem("signhub_customer", JSON.stringify(nextCustomer));
     setCustomer(nextCustomer);
     setIsCustomerAuthOpen(false);
+    setActivePage("home");
     showToast(`Xin chào ${nextCustomer.name}. Bạn có thể thêm sản phẩm vào giỏ.`, "success");
     if (pendingCartAction) {
       const action = pendingCartAction;
@@ -196,12 +204,55 @@ export default function App() {
     }
   };
 
+  const handleCustomerLogout = () => {
+    sessionStorage.removeItem("signhub_customer_token");
+    localStorage.removeItem("signhub_customer");
+    setCustomer(null);
+    showToast("Bạn đã đăng xuất.", "neutral");
+    setActivePage("home");
+  };
+
+  React.useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.pathname !== "/oauth2/success") return;
+
+    const oauthError = url.searchParams.get("error");
+    if (oauthError) {
+      showToast(oauthError, "neutral");
+      window.history.replaceState({}, document.title, "/");
+      return;
+    }
+
+    const token = url.searchParams.get("token");
+    const userId = url.searchParams.get("userId");
+    const fullName = url.searchParams.get("fullName");
+    const email = url.searchParams.get("email");
+    const role = url.searchParams.get("role");
+
+    if (!token || !userId || !email || role !== "CUSTOMER") {
+      showToast("Google login response was invalid. Please try again.", "neutral");
+      window.history.replaceState({}, document.title, "/");
+      return;
+    }
+
+    handleCustomerAuth({
+      token,
+      tokenType: url.searchParams.get("tokenType") || "Bearer",
+      userId,
+      fullName: fullName || email.split("@")[0],
+      email,
+      role,
+    });
+    showToast("Đăng nhập google thành công.", "success");
+    window.history.replaceState({}, document.title, "/");
+  }, []);
+
   const handleAdminAuth = (auth: ApiAuthResponse) => {
     localStorage.setItem("signhub_admin_token", auth.token);
     localStorage.setItem("signhub_admin_profile", JSON.stringify(auth));
     setIsCustomerAuthOpen(false);
     setPendingCartAction(null);
-    showToast("Dang nhap quan tri thanh cong.", "success");
+    showToast("Đăng nhập quản trị thành công.", "success");
     setActivePage("admin");
   };
 
@@ -294,6 +345,7 @@ export default function App() {
         openCart={() => setIsCartOpen(true)}
         openLogin={() => setIsCustomerAuthOpen(true)}
         customer={customer}
+        onLogout={handleCustomerLogout}
       />
 
       {/* 2. Primary Page view container wrapper */}
@@ -359,17 +411,18 @@ function CustomerAuthModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onAuthenticated: (customer: { name: string; email: string; token?: string }) => void;
+  onAuthenticated: (auth: ApiAuthResponse) => void;
   onAdminAuthenticated: (auth: ApiAuthResponse) => void;
 }) {
   const [mode, setMode] = React.useState<"login" | "register">("login");
   const [form, setForm] = React.useState({ name: "", email: "", password: "", confirmPassword: "" });
   const [error, setError] = React.useState("");
   const googleButtonRef = React.useRef<HTMLDivElement | null>(null);
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+  const googleClientId = "spring-security-oauth2";
+  const googleRedirectUri = "";
 
   React.useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || googleClientId !== "__legacy_google_identity_services__") return;
     if (!googleClientId) {
       if (googleButtonRef.current) googleButtonRef.current.innerHTML = "";
       return;
@@ -387,11 +440,7 @@ function CustomerAuthModal({
           }
           try {
             const auth = await api.customerGoogleLogin({ credential: response.credential });
-            onAuthenticated({
-              name: auth.fullName || auth.email.split("@")[0],
-              email: auth.email,
-              token: auth.token,
-            });
+            onAuthenticated(auth);
           } catch (error) {
             setError(error instanceof Error ? error.message : "Không đăng nhập được bằng Google.");
           }
@@ -428,22 +477,36 @@ function CustomerAuthModal({
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
-    if (!form.email || !form.password || (mode === "register" && !form.name)) {
+    const email = form.email.trim();
+    const fullName = form.name.trim();
+    const password = form.password;
+    const confirmPassword = form.confirmPassword;
+    if (!email || !password.trim() || (mode === "register" && !fullName)) {
       setError("Vui lòng nhập đầy đủ thông tin.");
       return;
     }
     try {
-      if (mode === "register" && form.password !== form.confirmPassword) {
-        setError("Mat khau xac nhan khong trung khop.");
-        return;
+      if (mode === "register") {
+        if (!confirmPassword.trim()) {
+          setError("Vui long nhap lai mat khau.");
+          return;
+        }
+        if (password.length < 3) {
+          setError("Mat khau can toi thieu 3 ky tu.");
+          return;
+        }
+        if (password !== confirmPassword) {
+          setError("Mat khau xac nhan khong trung khop.");
+          return;
+        }
       }
-      const payload = { email: form.email.trim(), password: form.password };
+      const payload = { email, password };
       const auth: ApiAuthResponse = mode === "register"
         ? await api.customerRegister({
-            fullName: form.name.trim(),
+            fullName,
             email: payload.email,
             password: payload.password,
-            confirmPassword: form.confirmPassword,
+            confirmPassword,
           })
         : await api.customerLogin(payload).catch(async (customerError) => {
             const adminAuth = await api.adminLogin(payload);
@@ -454,14 +517,15 @@ function CustomerAuthModal({
         onAdminAuthenticated(auth);
         return;
       }
-      onAuthenticated({
-        name: auth.fullName || auth.email.split("@")[0],
-        email: auth.email,
-        token: auth.token,
-      });
+      onAuthenticated(auth);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Đăng nhập thất bại.");
     }
+  };
+
+  const startGoogleLogin = () => {
+    setError("");
+    window.location.assign(`${API_BASE_URL}/oauth2/authorization/google`);
   };
 
   return (
@@ -495,7 +559,36 @@ function CustomerAuthModal({
         </button>
         <div className="space-y-2">
           {googleClientId ? (
-            <div className="flex min-h-[44px] justify-center" ref={googleButtonRef} />
+            <button
+  type="button"
+  onClick={startGoogleLogin}
+  className="w-full flex items-center justify-center gap-3 py-3 border border-[#c4c7c7] rounded-full text-xs font-bold tracking-widest uppercase text-[#1b1c1c] bg-white hover:border-[#775a19] hover:text-[#775a19]"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 48 48"
+    className="w-5 h-5"
+  >
+    <path
+      fill="#FFC107"
+      d="M43.611 20.083H42V20H24v8h11.303C33.651 32.657 29.28 36 24 36c-6.627 0-12-5.373-12-12S17.373 12 24 12c3.059 0 5.842 1.154 7.955 3.045l5.657-5.657C34.046 6.053 29.27 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+    />
+    <path
+      fill="#FF3D00"
+      d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.955 3.045l5.657-5.657C34.046 6.053 29.27 4 24 4c-7.682 0-14.318 4.337-17.694 10.691z"
+    />
+    <path
+      fill="#4CAF50"
+      d="M24 44c5.169 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.163 35.091 26.715 36 24 36c-5.259 0-9.617-3.326-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+    />
+    <path
+      fill="#1976D2"
+      d="M43.611 20.083H42V20H24v8h11.303c-1.058 3.002-3.173 5.411-6.084 6.57l.003-.002 6.19 5.238C35.003 40.091 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
+    />
+  </svg>
+
+  <span>Đăng nhập với Google</span>
+</button>
           ) : (
             <>
               <button
@@ -503,7 +596,7 @@ function CustomerAuthModal({
                 disabled
                 className="w-full py-3 border border-[#c4c7c7] rounded-full text-xs font-bold tracking-widest uppercase text-[#444748] bg-[#fbf9f9]"
               >
-                Dang nhap voi Google
+                Đăng nhập với Google
               </button>
               <p className="text-[11px] leading-relaxed text-[#444748]">
                 Them VITE_GOOGLE_CLIENT_ID vao frontend/.env de bat Google Login.

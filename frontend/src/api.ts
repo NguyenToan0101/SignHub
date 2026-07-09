@@ -1,6 +1,6 @@
 import { Product, JournalPost } from "./data";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 export interface ApiPage<T> {
   content: T[];
@@ -94,6 +94,15 @@ export interface ApiAuthResponse {
   fullName: string;
   email: string;
   role: string;
+}
+
+export interface ApiCustomerAccount {
+  id: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  enabled: boolean;
+  createdAt?: string;
 }
 
 export interface CustomerAuthPayload {
@@ -252,7 +261,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
       let errorMessage = text;
       try {
         const error = JSON.parse(text);
-        errorMessage = error.message || text;
+        if (error.validationErrors && typeof error.validationErrors === "object") {
+          errorMessage = Object.values(error.validationErrors).join(" ");
+        } else {
+          errorMessage = error.message || text;
+        }
       } catch {
         errorMessage = text;
       }
@@ -335,8 +348,8 @@ export const api = {
   customerRegister: (payload: CustomerAuthPayload) => request<ApiAuthResponse>("/api/auth/register", {
     method: "POST",
     body: JSON.stringify({
-      fullName: payload.fullName,
-      email: payload.email,
+      fullName: payload.fullName?.trim(),
+      email: payload.email.trim(),
       password: payload.password,
       confirmPassword: payload.confirmPassword,
     }),
@@ -354,6 +367,7 @@ export const api = {
     method: "PUT",
     body: JSON.stringify(payload),
   }),
+  getAdminCustomers: () => adminRequest<ApiCustomerAccount[]>("/api/admin/customers"),
   getAdminProducts: (params = "?page=0&size=200") => adminRequest<ApiPage<ApiProduct>>(`/api/admin/products${params}`),
   getAdminOrders: (params = "?page=0&size=200") => adminRequest<ApiPage<ApiOrder>>(`/api/admin/orders${params}`),
   createAdminProduct: (payload: AdminProductPayload) => adminRequest<ApiProduct>("/api/admin/products", {

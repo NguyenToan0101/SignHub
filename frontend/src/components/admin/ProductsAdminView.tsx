@@ -210,7 +210,7 @@ export function ProductsAdminView({
             <option value="seating">Khác</option>
             <option value="lighting">Biển hiệu đèn</option>
             <option value="tables">Biển số nhà</option>
-            <option value="decor">Trang trí</option>
+            <option value="company">Biển số công ty</option>
           </select>
         </div>
 
