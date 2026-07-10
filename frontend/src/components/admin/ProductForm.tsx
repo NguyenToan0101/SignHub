@@ -30,6 +30,7 @@ const STATUS_LABELS: Record<AdminProduct["status"], string> = {
 export function ProductForm({ isOpen, onClose, product, onSave }: ProductFormProps) {
   const [formData, setFormData] = React.useState<Partial<AdminProduct>>({});
   const [finishInput, setFinishInput] = React.useState("");
+  const [finishPriceInput, setFinishPriceInput] = React.useState("");
   const [mainImageFile, setMainImageFile] = React.useState<File | null>(null);
   const [galleryDrafts, setGalleryDrafts] = React.useState<GalleryDraft[]>([]);
   const [uploading, setUploading] = React.useState(false);
@@ -41,7 +42,11 @@ export function ProductForm({ isOpen, onClose, product, onSave }: ProductFormPro
   React.useEffect(() => {
     if (!isOpen) return;
     if (product) {
-      setFormData({ ...product, finishOptions: product.finishOptions || [], gallery: product.gallery || [] });
+      const finishOptions = product.finishOptions || product.variants?.map((variant) => variant.size) || [];
+      const variants = product.variants?.length
+        ? product.variants
+        : finishOptions.map((size) => ({ id: "", size, extraPrice: 0, stockQuantity: product.stock || 0, active: true }));
+      setFormData({ ...product, finishOptions, variants, gallery: product.gallery || [] });
       setGalleryDrafts((product.gallery || []).map((url) => ({ id: url, url })));
     } else {
       setFormData({
@@ -57,12 +62,14 @@ export function ProductForm({ isOpen, onClose, product, onSave }: ProductFormPro
         image: "",
         status: "Active",
         finishOptions: [],
+        variants: [],
         gallery: [],
       });
       setGalleryDrafts([]);
     }
     setMainImageFile(null);
     setFinishInput("");
+    setFinishPriceInput("");
     setUploadError("");
   }, [product, isOpen]);
 
@@ -111,15 +118,43 @@ export function ProductForm({ isOpen, onClose, product, onSave }: ProductFormPro
   const handleAddFinish = () => {
     const value = finishInput.trim();
     if (!value) return;
+    const price = Number(finishPriceInput || 0);
     setFormData((prev) => ({
       ...prev,
       finishOptions: (prev.finishOptions || []).includes(value) ? prev.finishOptions : [...(prev.finishOptions || []), value],
+      variants: (prev.variants || []).some((variant) => variant.size === value)
+        ? prev.variants
+        : [
+            ...(prev.variants || []),
+            {
+              id: "",
+              size: value,
+              extraPrice: Number.isFinite(price) ? Math.max(0, price) : 0,
+              stockQuantity: prev.stock || 0,
+              active: true,
+            },
+          ],
     }));
     setFinishInput("");
+    setFinishPriceInput("");
   };
 
   const handleRemoveFinish = (index: number) => {
-    setFormData((prev) => ({ ...prev, finishOptions: prev.finishOptions?.filter((_, i) => i !== index) }));
+    setFormData((prev) => ({
+      ...prev,
+      finishOptions: prev.finishOptions?.filter((_, i) => i !== index),
+      variants: prev.variants?.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleVariantPriceChange = (index: number, value: string) => {
+    const price = Number(value || 0);
+    setFormData((prev) => ({
+      ...prev,
+      variants: (prev.variants || []).map((variant, i) =>
+        i === index ? { ...variant, extraPrice: Number.isFinite(price) ? Math.max(0, price) : 0 } : variant
+      ),
+    }));
   };
 
   const handleRemoveGalleryImage = (index: number) => {
@@ -236,20 +271,31 @@ export function ProductForm({ isOpen, onClose, product, onSave }: ProductFormPro
 
             <div>
               <label className="block text-[10px] font-bold tracking-wider text-[#444748] uppercase mb-1.5">Tùy chọn / phiên bản</label>
-              <div className="flex gap-2 mb-3">
-                <input type="text" value={finishInput} onChange={(e) => setFinishInput(e.target.value)} placeholder="Thêm tùy chọn, ví dụ: nền đen viền vàng" className="flex-grow admin-input" />
+              <div className="grid grid-cols-[1fr_140px_auto] gap-2 mb-3">
+                <input type="text" value={finishInput} onChange={(e) => setFinishInput(e.target.value)} placeholder="Thêm tùy chọn, ví dụ: 25x11cm" className="admin-input min-w-0" />
+                <input type="number" min="0" value={finishPriceInput} onChange={(e) => setFinishPriceInput(e.target.value)} placeholder="Giá" className="admin-input min-w-0" />
                 <button type="button" onClick={handleAddFinish} className="bg-[#1b1c1c] text-white px-4 py-2 rounded-xl text-xs font-semibold hover:bg-[#775a19]">
                   <Plus size={14} />
                 </button>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="space-y-2">
                 {formData.finishOptions?.map((item, index) => (
-                  <span key={item} className="inline-flex items-center gap-2 px-3 py-1 bg-[#efeded] text-[#1b1c1c] text-xs font-medium rounded-full">
-                    {item}
-                    <button type="button" onClick={() => handleRemoveFinish(index)} className="text-[#444748] hover:text-red-600 font-bold" aria-label="Xóa tùy chọn">
-                      x
+                  <div key={item} className="grid grid-cols-[1fr_140px_auto] gap-2 items-center">
+                    <span className="min-w-0 px-3 py-2 bg-[#efeded] text-[#1b1c1c] text-xs font-medium rounded-xl truncate">
+                      {item}
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.variants?.[index]?.extraPrice ?? 0}
+                      onChange={(e) => handleVariantPriceChange(index, e.target.value)}
+                      className="admin-input text-xs"
+                      aria-label={`Giá tùy chọn ${item}`}
+                    />
+                    <button type="button" onClick={() => handleRemoveFinish(index)} className="p-2 text-[#444748] hover:text-red-600" aria-label="Xóa tùy chọn">
+                      <Trash2 size={14} />
                     </button>
-                  </span>
+                  </div>
                 ))}
               </div>
             </div>

@@ -147,7 +147,7 @@ export function CartSidebar({ isOpen, onClose, cart, onUpdateQuantity, onRemoveI
                 onClick={onGoToCheckout}
                 className="w-full bg-[#1b1c1c] text-white py-4 rounded-full font-sans text-xs tracking-[0.25em] uppercase font-bold hover:bg-[#775a19] hover:scale-[1.01] transition-all duration-300 flex items-center justify-center gap-2 shadow-xl"
               >
-                THANH TOÁN
+                ĐẶT HÀNG
                 <ArrowRight size={14} />
               </button>
             </div>

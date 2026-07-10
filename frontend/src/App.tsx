@@ -153,7 +153,7 @@ export default function App() {
         nextCart[existingIndex].quantity += quantity;
         return nextCart;
       } else {
-        return [...prevCart, { product, quantity, selectedFinish: finish, selectedSize: size, variantId: variant?.id, unitPrice: product.price + (variant?.extraPrice || 0) }];
+        return [...prevCart, { product, quantity, selectedFinish: finish, selectedSize: size, variantId: variant?.id, unitPrice: variant ? variant.extraPrice : product.price }];
       }
     });
 

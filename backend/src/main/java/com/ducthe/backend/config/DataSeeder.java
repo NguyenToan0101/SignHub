@@ -172,9 +172,9 @@ public class DataSeeder {
                 .mainImage(true)
                 .sortOrder(1)
                 .build());
-        product.getVariants().add(ProductVariant.builder().product(product).size("25x17.5cm").extraPrice(BigDecimal.ZERO).stockQuantity(50).active(true).build());
-        product.getVariants().add(ProductVariant.builder().product(product).size("30x21cm").extraPrice(new BigDecimal("50000")).stockQuantity(50).active(true).build());
-        product.getVariants().add(ProductVariant.builder().product(product).size("35x24.5cm").extraPrice(new BigDecimal("90000")).stockQuantity(50).active(true).build());
+        product.getVariants().add(ProductVariant.builder().product(product).size("25x17.5cm").extraPrice(price).stockQuantity(50).active(true).build());
+        product.getVariants().add(ProductVariant.builder().product(product).size("30x21cm").extraPrice(price.add(new BigDecimal("50000"))).stockQuantity(50).active(true).build());
+        product.getVariants().add(ProductVariant.builder().product(product).size("35x24.5cm").extraPrice(price.add(new BigDecimal("90000"))).stockQuantity(50).active(true).build());
 
         Product saved = productRepository.save(product);
         reviewRepository.save(Review.builder()

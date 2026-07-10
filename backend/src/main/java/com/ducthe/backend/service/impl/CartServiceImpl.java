@@ -48,7 +48,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = cart(request.sessionId());
         Product product = productRepository.findById(request.productId()).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         ProductVariant variant = request.variantId() == null ? null : variantRepository.findById(request.variantId()).orElseThrow(() -> new ResourceNotFoundException("Variant not found"));
-        BigDecimal unitPrice = product.getBasePrice().add(variant == null ? BigDecimal.ZERO : variant.getExtraPrice());
+        BigDecimal unitPrice = variant == null ? product.getBasePrice() : variant.getExtraPrice();
         CartItem item = CartItem.builder()
                 .cart(cart)
                 .product(product)

@@ -51,7 +51,7 @@ export function ProductDetailView({ productId, onAddToCart, onSelectProduct }: P
     : [product.image, product.image, product.image];
 
   const selectedVariant = product.variants?.find((variant) => variant.size === selectedSize);
-  const calculatedPrice = product.price + (selectedVariant?.extraPrice || 0);
+  const calculatedPrice = selectedVariant ? selectedVariant.extraPrice : product.price;
 
   const finishes = [
     { name: "Theo mẫu", color: "bg-[#E5E2E1]" },
@@ -164,7 +164,7 @@ export function ProductDetailView({ productId, onAddToCart, onSelectProduct }: P
                           : "border-[#c4c7c7]/50 text-[#444748] hover:bg-[#efeded]/30"
                       }`}
                     >
-                      {variant.size}{variant.extraPrice > 0 ? ` (+${formatVnd(variant.extraPrice)})` : ""}
+                      {variant.size}{variant.extraPrice > 0 ? ` - ${formatVnd(variant.extraPrice)}` : ""}
                     </button>
                   ))}
                 </div>

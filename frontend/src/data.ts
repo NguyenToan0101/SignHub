@@ -45,9 +45,9 @@ export const PRODUCTS: Product[] = [
       { label: "Bảo hành", value: "12 tháng" },
     ],
     variants: [
-      { id: "", size: "25x17.5cm", extraPrice: 0, stockQuantity: 50, active: true },
-      { id: "", size: "30x21cm", extraPrice: 50000, stockQuantity: 50, active: true },
-      { id: "", size: "35x24.5cm", extraPrice: 90000, stockQuantity: 50, active: true },
+      { id: "", size: "25x17.5cm", extraPrice: 280000, stockQuantity: 50, active: true },
+      { id: "", size: "30x21cm", extraPrice: 330000, stockQuantity: 50, active: true },
+      { id: "", size: "35x24.5cm", extraPrice: 370000, stockQuantity: 50, active: true },
     ],
   },
   {

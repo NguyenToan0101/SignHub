@@ -124,11 +124,14 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
       productData.image ? { imageUrl: productData.image, mainImage: true, sortOrder: 0 } : null,
       ...(productData.gallery || []).map((imageUrl, index) => ({ imageUrl, mainImage: false, sortOrder: index + 1 })),
     ].filter(Boolean) as { imageUrl: string; mainImage?: boolean; sortOrder?: number }[],
-    variants: (productData.finishOptions || ["Tiêu chuẩn"]).map((size) => ({
-      size,
-      extraPrice: 0,
-      stockQuantity: productData.stock || 0,
-      active: true,
+    variants: (productData.variants?.length
+      ? productData.variants
+      : (productData.finishOptions || ["Tiêu chuẩn"]).map((size) => ({ size, extraPrice: 0, stockQuantity: productData.stock || 0, active: true }))
+    ).map((variant) => ({
+      size: variant.size,
+      extraPrice: Number(variant.extraPrice || 0),
+      stockQuantity: productData.stock || variant.stockQuantity || 0,
+      active: variant.active !== false,
     })),
   });
 
@@ -175,6 +178,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
         image: productWithBackendId.image || "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=120",
         status: productWithBackendId.status || "Active",
         finishOptions: productWithBackendId.finishOptions || ["Tiêu chuẩn"],
+        variants: productWithBackendId.variants || [],
         gallery: productWithBackendId.gallery || []
       };
       setProducts((prev) => [newPiece, ...prev]);
