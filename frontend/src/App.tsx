@@ -4,6 +4,7 @@
  */
 
 import React from "react";
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Navbar, Footer, MobileBottomNavigation, FloatingContact } from "./components/NavFooter";
 import { HomeView } from "./components/HomeView";
 import { CollectionsView } from "./components/CollectionsView";
@@ -37,9 +38,8 @@ const createSessionId = () => {
 };
 
 export default function App() {
-  const [activePage, setActivePage] = React.useState<string>("home");
-  const [selectedProductId, setSelectedProductId] = React.useState<string>("bien-so-nha-mica-den-vien-vang");
-  const [selectedJournalId, setSelectedJournalId] = React.useState<string | null>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
   const [sessionId] = React.useState(() => {
     const saved = localStorage.getItem("signhub_session_id");
     if (saved) return saved;
@@ -68,6 +68,12 @@ export default function App() {
   // Elegant minimalist customized Toast Notify banner
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
   const [toastType, setToastType] = React.useState<"success" | "neutral">("success");
+
+  const activePage = React.useMemo(() => getActivePage(location.pathname), [location.pathname]);
+
+  const navigateToPage = React.useCallback((page: string) => {
+    navigate(pageToPath(page));
+  }, [navigate]);
 
   const showToast = (message: string, type: "success" | "neutral" = "success") => {
     setToastMessage(message);
@@ -212,7 +218,7 @@ export default function App() {
     localStorage.setItem("signhub_customer", JSON.stringify(nextCustomer));
     setCustomer(nextCustomer);
     setIsCustomerAuthOpen(false);
-    setActivePage("home");
+    navigateToPage("home");
     showToast(`Xin chào ${nextCustomer.name}. Bạn có thể thêm sản phẩm vào giỏ.`, "success");
     if (pendingCartAction) {
       const action = pendingCartAction;
@@ -226,7 +232,7 @@ export default function App() {
     localStorage.removeItem("signhub_customer");
     setCustomer(null);
     showToast("Bạn đã đăng xuất.", "neutral");
-    setActivePage("home");
+    navigateToPage("home");
   };
 
   React.useEffect(() => {
@@ -236,7 +242,7 @@ export default function App() {
     const oauthError = url.searchParams.get("error");
     if (oauthError) {
       showToast(oauthError, "neutral");
-      window.history.replaceState({}, document.title, "/");
+      navigate("/", { replace: true });
       return;
     }
 
@@ -248,7 +254,7 @@ export default function App() {
 
     if (!token || !userId || !email || role !== "CUSTOMER") {
       showToast("Google login response was invalid. Please try again.", "neutral");
-      window.history.replaceState({}, document.title, "/");
+      navigate("/", { replace: true });
       return;
     }
 
@@ -261,8 +267,8 @@ export default function App() {
       role,
     });
     showToast("Đăng nhập google thành công.", "success");
-    window.history.replaceState({}, document.title, "/");
-  }, []);
+    navigate("/", { replace: true });
+  }, [navigate]);
 
   const handleAdminAuth = (auth: ApiAuthResponse) => {
     localStorage.setItem("signhub_admin_token", auth.token);
@@ -270,85 +276,17 @@ export default function App() {
     setIsCustomerAuthOpen(false);
     setPendingCartAction(null);
     showToast("Đăng nhập quản trị thành công.", "success");
-    setActivePage("admin");
-  };
-
-  // Render correct active page container view
-  const renderPage = () => {
-    switch (activePage) {
-      case "home":
-        return (
-          <HomeView
-            onExplore={() => setActivePage("collections")}
-            onSelectProduct={(id) => {
-              setSelectedProductId(id);
-              setActivePage("product-detail");
-            }}
-            onSelectJournal={(id) => {
-              setSelectedJournalId(id);
-              setActivePage("editorial");
-            }}
-          />
-        );
-      case "collections":
-        return (
-          <CollectionsView
-            onSelectProduct={(id) => {
-              setSelectedProductId(id);
-              setActivePage("product-detail");
-            }}
-          />
-        );
-      case "product-detail":
-        return (
-          <ProductDetailView
-            productId={selectedProductId}
-            onAddToCart={handleAddToCart}
-            onSelectProduct={(id) => {
-              setSelectedProductId(id);
-            }}
-          />
-        );
-      case "checkout":
-        return (
-          <CheckoutView
-            cart={cart}
-            sessionId={sessionId}
-            onUpdateQuantity={handleUpdateQuantity}
-            onRemoveItem={handleRemoveItem}
-            onClearCart={handleClearCart}
-          />
-        );
-      case "editorial":
-        return (
-          <EditorialView
-            selectedPostId={selectedJournalId}
-            onSelectPost={(id) => {
-              setSelectedJournalId(id);
-            }}
-          />
-        );
-      case "story":
-        return <OurStoryView />;
-      default:
-        return (
-          <HomeView
-            onExplore={() => setActivePage("collections")}
-            onSelectProduct={(id) => {
-              setSelectedProductId(id);
-              setActivePage("product-detail");
-            }}
-            onSelectJournal={(id) => {
-              setSelectedJournalId(id);
-              setActivePage("editorial");
-            }}
-          />
-        );
-    }
+    navigateToPage("admin");
   };
 
   if (activePage === "admin") {
-    return <AdminDashboard onExitPortal={() => setActivePage("home")} />;
+    return (
+      <Routes>
+        <Route path="/admin" element={<AdminDashboard onExitPortal={() => navigateToPage("home")} />} />
+        <Route path="/admin/:tab" element={<AdminDashboard onExitPortal={() => navigateToPage("home")} />} />
+        <Route path="*" element={<Navigate to="/admin" replace />} />
+      </Routes>
+    );
   }
 
   return (
@@ -357,7 +295,7 @@ export default function App() {
       {/* 1. Glassmorphic Navigation Menu */}
       <Navbar 
         activePage={activePage} 
-        setActivePage={setActivePage} 
+        setActivePage={navigateToPage} 
         cartCount={totalCartCount} 
         openCart={() => setIsCartOpen(true)}
         openLogin={() => setIsCustomerAuthOpen(true)}
@@ -367,11 +305,50 @@ export default function App() {
 
       {/* 2. Primary Page view container wrapper */}
       <div className="flex-grow transition-opacity duration-300">
-        {renderPage()}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomeView
+                onExplore={() => navigateToPage("collections")}
+                onSelectProduct={(id) => navigate(`/products/${id}`)}
+                onSelectJournal={(id) => navigate(`/editorial/${id}`)}
+              />
+            }
+          />
+          <Route path="/collections" element={<CollectionsView onSelectProduct={(id) => navigate(`/products/${id}`)} />} />
+          <Route path="/products/:productId" element={<ProductRoute onAddToCart={handleAddToCart} />} />
+          <Route
+            path="/checkout"
+            element={
+              <CheckoutView
+                cart={cart}
+                sessionId={sessionId}
+                onUpdateQuantity={handleUpdateQuantity}
+                onRemoveItem={handleRemoveItem}
+                onClearCart={handleClearCart}
+              />
+            }
+          />
+          <Route path="/editorial" element={<EditorialRoute />} />
+          <Route path="/editorial/:postId" element={<EditorialRoute />} />
+          <Route path="/story" element={<OurStoryView />} />
+          <Route
+            path="/oauth2/success"
+            element={
+              <HomeView
+                onExplore={() => navigateToPage("collections")}
+                onSelectProduct={(id) => navigate(`/products/${id}`)}
+                onSelectJournal={(id) => navigate(`/editorial/${id}`)}
+              />
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </div>
 
       {/* 3. Global footer */}
-      <Footer setActivePage={setActivePage} />
+      <Footer setActivePage={navigateToPage} />
 
       {/* 4. Sliding Cart panel */}
       <CartSidebar 
@@ -382,7 +359,7 @@ export default function App() {
         onRemoveItem={handleRemoveItem}
         onGoToCheckout={() => {
           setIsCartOpen(false);
-          setActivePage("checkout");
+          navigateToPage("checkout");
         }}
       />
 
@@ -400,7 +377,7 @@ export default function App() {
       />
 
       {/* 6. Mobile specific bottom overlay bar navigation */}
-      <MobileBottomNavigation activePage={activePage} setActivePage={setActivePage} />
+      <MobileBottomNavigation activePage={activePage} setActivePage={navigateToPage} />
 
       {/* 7. Minimalist floating custom styled high-contrast Toast alert */}
       {toastMessage && (
@@ -420,6 +397,65 @@ export default function App() {
   );
 }
 
+function ProductRoute({
+  onAddToCart,
+}: {
+  onAddToCart: (product: Product, quantity: number, finish: string, size: string) => void;
+}) {
+  const navigate = useNavigate();
+  const { productId } = useParams();
+
+  return (
+    <ProductDetailView
+      productId={productId || PRODUCTS[0].id}
+      onAddToCart={onAddToCart}
+      onSelectProduct={(id) => navigate(`/products/${id}`)}
+    />
+  );
+}
+
+function EditorialRoute() {
+  const navigate = useNavigate();
+  const { postId } = useParams();
+
+  return (
+    <EditorialView
+      selectedPostId={postId || null}
+      onSelectPost={(id) => navigate(id ? `/editorial/${id}` : "/editorial")}
+    />
+  );
+}
+
+function getActivePage(pathname: string) {
+  if (pathname.startsWith("/admin")) return "admin";
+  if (pathname.startsWith("/collections")) return "collections";
+  if (pathname.startsWith("/products")) return "product-detail";
+  if (pathname.startsWith("/checkout")) return "checkout";
+  if (pathname.startsWith("/editorial")) return "editorial";
+  if (pathname.startsWith("/story")) return "story";
+  return "home";
+}
+
+function pageToPath(page: string) {
+  switch (page) {
+    case "collections":
+      return "/collections";
+    case "product-detail":
+      return `/products/${PRODUCTS[0].id}`;
+    case "checkout":
+      return "/checkout";
+    case "editorial":
+      return "/editorial";
+    case "story":
+      return "/story";
+    case "admin":
+      return "/admin";
+    case "home":
+    default:
+      return "/";
+  }
+}
+
 function CustomerAuthModal({
   isOpen,
   onClose,
@@ -435,7 +471,7 @@ function CustomerAuthModal({
   const [form, setForm] = React.useState({ name: "", email: "", password: "", confirmPassword: "" });
   const [error, setError] = React.useState("");
   const googleButtonRef = React.useRef<HTMLDivElement | null>(null);
-  const googleClientId = "spring-security-oauth2";
+  const googleClientId: string = "spring-security-oauth2";
   const googleRedirectUri = "";
 
   React.useEffect(() => {

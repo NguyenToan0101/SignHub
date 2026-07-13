@@ -4,6 +4,7 @@
  */
 
 import React from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { api, ApiAuthResponse, ApiCustomerAccount, ApiOrder, ApiProduct, mapApiProduct } from "../../api";
 import { AdminLayout } from "./AdminLayout";
 import { DashboardView } from "./DashboardView";
@@ -25,7 +26,11 @@ interface AdminDashboardProps {
   onExitPortal: () => void;
 }
 
+const ADMIN_TABS = ["dashboard", "analytics", "products", "orders", "customers", "profile"] as const;
+
 export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
+  const navigate = useNavigate();
+  const { tab } = useParams();
   // 1. Primary memory store state arrays (CRUD operations act on these in-session)
   const [products, setProducts] = React.useState<AdminProduct[]>([]);
   const [orders, setOrders] = React.useState<AdminOrder[]>([]);
@@ -38,7 +43,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
   const [adminProfile, setAdminProfile] = React.useState(() => getStoredAdminProfile());
 
   // Layout navigation
-  const [activeTab, setActiveTab] = React.useState<string>("dashboard");
+  const [activeTab, setActiveTab] = React.useState<string>(isAdminTab(tab) ? tab : "dashboard");
 
   // Visual custom toast states
   const [toast, setToast] = React.useState<{ message: string; type: "success" | "neutral" } | null>(null);
@@ -49,6 +54,24 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
       setToast(null);
     }, 4500);
   };
+
+  const navigateToTab = React.useCallback((nextTab: string) => {
+    const targetTab = isAdminTab(nextTab) ? nextTab : "dashboard";
+    setActiveTab(targetTab);
+    navigate(targetTab === "dashboard" ? "/admin" : `/admin/${targetTab}`);
+  }, [navigate]);
+
+  React.useEffect(() => {
+    if (!tab) {
+      setActiveTab("dashboard");
+      return;
+    }
+    if (!isAdminTab(tab)) {
+      navigate("/admin", { replace: true });
+      return;
+    }
+    setActiveTab(tab);
+  }, [navigate, tab]);
 
   const loadAdminData = React.useCallback(async () => {
     setIsLoadingData(true);
@@ -289,7 +312,7 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
       {/* Dynamic Shell Layout Wrapper */}
       <AdminLayout 
         activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
+        setActiveTab={navigateToTab} 
         adminProfile={adminProfile}
         onLogout={() => {
           localStorage.removeItem("signhub_admin_token");
@@ -310,10 +333,10 @@ export function AdminDashboard({ onExitPortal }: AdminDashboardProps) {
             orders={orders}
             customers={customers}
             lowStockThreshold={lowStockThreshold}
-            onNavigateToTab={setActiveTab}
+            onNavigateToTab={navigateToTab}
             onSelectOrder={(ord) => {
               setActiveSelectedOrder(ord);
-              setActiveTab("orders");
+              navigateToTab("orders");
             }}
           />
         )}
@@ -439,6 +462,10 @@ function mapAdminProduct(product: ApiProduct): AdminProduct {
     status: product.status === "ACTIVE" ? (stock === 0 ? "Out of Stock" : "Active") : "Hidden",
     finishOptions: (product.variants || []).map((variant) => variant.size),
   };
+}
+
+function isAdminTab(tab: string | undefined): tab is typeof ADMIN_TABS[number] {
+  return ADMIN_TABS.includes(tab as typeof ADMIN_TABS[number]);
 }
 
 function mapAdminOrder(order: ApiOrder): AdminOrder {
